@@ -17,13 +17,13 @@ class BaseConfig:
     def parse(self, parser=None):
         if parser is None:
             parser = argparse.ArgumentParser(add_help=False, formatter_class=RawTextHelpFormatter)
-        parser.add_argument('--follower','-f', type=str, default='papras_6dof')
+        parser.add_argument('--follower','-f', type=str, default='papras_7dof')
         parser.add_argument('--leader', '-l', type=str, default='sliders')
         parser.add_argument('--env', '-e', type=str, default='mujoco')
 
         parser.add_argument('--render-leader', action='store_true', default=False,)
         parser.add_argument('--render-teleop', action='store_true', default=False)
-        parser.add_argument('--render-env', action='store_true', default=True)
+        parser.add_argument('--render-env', action='store_true', default=False)
 
         parser.add_argument('--off-collision', action='store_true', default=False)
         parser.add_argument('--off-feedback', action='store_true', default=False)

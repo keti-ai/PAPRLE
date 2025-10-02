@@ -96,6 +96,7 @@ g1_joint_names = list(g1_joint_mapping.keys())
 sub_to_pose_mapping = [[g1_joint_names.index(name), g1_joint_mapping[name]] for name in g1_joint_names]
 mode_machine = 0
 
+WAIST_JOINTS = ['waist_yaw_joint', 'waist_roll_joint', 'waist_pitch_joint']
 class JointStateSubscriber(Node):
     def __init__(self, sub_info, output_joint_names):
         super().__init__('joint_state_subscriber')
@@ -121,6 +122,11 @@ class JointStateSubscriber(Node):
             'eff': np.zeros(len(output_joint_names))
         }
 
+        self.waist_states = {
+            'pos': np.zeros(len(WAIST_JOINTS))
+        }
+        self.waist_joint_ids = np.array([[g1_joint_mapping[name],order] for order, name in enumerate(WAIST_JOINTS)])
+
     def listener_callback(self, msg, topic):
         if self.joint_mapping[topic] is None:
             global mode_machine  # kind of not good implementation, but it works
@@ -139,14 +145,22 @@ class JointStateSubscriber(Node):
             pos.append(joint_position)
             vel.append(joint_velocity)
             effort.append(joint_effort)
+
+        waist_pos = []
+        waist_id1, waist_id2 =  self.waist_joint_ids[:,0],  self.waist_joint_ids[:,1]
+        for idx in waist_id1:
+            waist_pos.append(msg.motor_state[idx].q)
+
         with self.lock:
             self.states['pos'][id2] = np.array(pos)
             self.states['vel'][id2] = np.array(vel)
             self.states['eff'][id2] = np.array(effort)
+
+            self.waist_states['pos'][waist_id2] = np.array(waist_pos)
         self.flag_first_state_updated[topic] = True
 
 class ControllerPublisher(Node):
-    def __init__(self, pub_info, command_joint_names, joint_states, timer_period=0.02):
+    def __init__(self, pub_info, command_joint_names, joint_states, timer_period=0.01, waist_states=None):
         super().__init__('controller_publisher')
         self.timer_period = timer_period
         self.pub_info = pub_info
@@ -158,7 +172,7 @@ class ControllerPublisher(Node):
         self.kp = 60.0
         self.kp_dict = {joint_idx: self.kp for joint_idx in g1_joint_mapping.values()}
         for waist_joint in [G1JointIndex.WaistYaw, G1JointIndex.WaistRoll, G1JointIndex.WaistPitch]:
-            self.kp_dict[waist_joint] = 200
+            self.kp_dict[waist_joint] = 200.0
 
         self.kd = 1.5
         self.kd_dict = {joint_idx: self.kd for joint_idx in g1_joint_mapping.values()}
@@ -175,7 +189,7 @@ class ControllerPublisher(Node):
             self.kd_dict[wrist_joint] = 0.5
 
         if len(self.command_joint_names) < (7 + 7 + 4 + 4):
-            self.arm_sdk_on = 1 # arm sdk on
+            self.arm_sdk_on = 1.0 # arm sdk on
         else:
             self.arm_sdk_on = 0
 
@@ -183,14 +197,29 @@ class ControllerPublisher(Node):
         self.interpolate_time_ = {}
         self.interpolate_duration = 3.0
         self.joint_states = joint_states
+
+        self.WAIST_JOINTS = WAIST_JOINTS
+        self.USE_WAIST = {name: False for name in self.WAIST_JOINTS}
+        self.waist_states = waist_states
+
+        self.WAIST_TO_FIX = []
         for pub_topic, pub_info in pub_info.items():
             pub_msg_type = eval(pub_info['type'])
             self.joint_mapping[pub_topic] = []
             for id, name in enumerate(self.command_joint_names):
+                if name in self.USE_WAIST:
+                    self.USE_WAIST[name] = True
                 if name in g1_joint_names:
                     self.joint_mapping[pub_topic].append((g1_joint_mapping[name], id))
+            for waist_joint_name in self.WAIST_JOINTS:
+                if self.USE_WAIST[waist_joint_name]:
+                    continue # this joint will be controlled by command
+                else:
+                    joint_to_add = g1_joint_mapping[waist_joint_name]
+                    if joint_to_add not in self.WAIST_TO_FIX:
+                        self.WAIST_TO_FIX.append([joint_to_add, WAIST_JOINTS.index(waist_joint_name)])
             self.joint_mapping[pub_topic] = np.array(self.joint_mapping[pub_topic])
-            self.pubs[pub_topic] = self.create_publisher(pub_msg_type, pub_topic, 10)
+            self.pubs[pub_topic] = self.create_publisher(pub_msg_type, pub_topic, 1)
             self.interpolate_time_[pub_topic] = 0.0
             self.create_timer(timer_period, partial(self.publish, pub_topic))
 
@@ -210,6 +239,14 @@ class ControllerPublisher(Node):
                     msg.motor_cmd[id1].tau = 0.0
                     msg.motor_cmd[id1].dq = 0.0
                     msg.motor_cmd[id1].mode = 1
+                for lock_id, _ in self.WAIST_TO_FIX:
+                    msg.motor_cmd[lock_id].q = 0.0
+                    msg.motor_cmd[lock_id].kp = self.kp_dict[lock_id]
+                    msg.motor_cmd[lock_id].kd = self.kd_dict[lock_id]
+                    msg.motor_cmd[lock_id].tau = 0.0
+                    msg.motor_cmd[lock_id].dq = 0.0
+                    msg.motor_cmd[lock_id].mode = 1
+
             else:
                 ratio = min(self.interpolate_time_[topic]/self.interpolate_duration, 1.0)
                 for id1, id2 in zip(ids1, ids2):
@@ -219,6 +256,13 @@ class ControllerPublisher(Node):
                     msg.motor_cmd[id1].tau = 0.0
                     msg.motor_cmd[id1].dq = 0.0
                     msg.motor_cmd[id1].mode = 1
+                for lock_id, waist_id in self.WAIST_TO_FIX:
+                    msg.motor_cmd[lock_id].q = (1-ratio) * self.waist_states['pos'][waist_id] + ratio * 0.0
+                    msg.motor_cmd[lock_id].kp = self.kp_dict[lock_id]
+                    msg.motor_cmd[lock_id].kd = self.kd_dict[lock_id]
+                    msg.motor_cmd[lock_id].tau = 0.0
+                    msg.motor_cmd[lock_id].dq = 0.0
+                    msg.motor_cmd[lock_id].mode = 1
                 self.interpolate_time_[topic] += self.timer_period
             msg.crc = C.Crc(msg)
             self.pubs[topic].publish(msg)

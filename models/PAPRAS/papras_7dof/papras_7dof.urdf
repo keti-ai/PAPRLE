@@ -449,7 +449,7 @@
   <joint name="robot1/wrist_joint" type="fixed">
     <parent link="robot1/end_link"/>
     <child link="robot1/wrist_link"/>
-    <origin rpy="0 0 0" xyz="0.006 0.0 0.0"/>
+    <origin rpy="1.57 0 0" xyz="0.006 0.0 0.0"/>
   </joint>
   <!-- gripper main fixed joint-->
   <joint name="robot1/end_link_fixed" type="fixed">

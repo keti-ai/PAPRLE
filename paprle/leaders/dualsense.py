@@ -15,7 +15,7 @@ class DualSense:
 
         self.curr_ts = {limb_name: np.zeros(3) for limb_name in self.follower_limb_names}
         self.curr_Rs = {limb_name: np.eye(3) for limb_name in self.follower_limb_names}
-        self.eef_type = robot_config.robot_cfg.eef_type
+        self.eef_type = robot.robot_cfg.eef_type
         # keyboard only supports binary open-close
         if self.eef_type == 'parallel_gripper':
             self.gripper_command = {limb_name: 'open' for limb_name in self.follower_limb_names}

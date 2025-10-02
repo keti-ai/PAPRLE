@@ -19,7 +19,7 @@ end_effector_link:
 hand_joint_names:
   robot1: ['robot1/gripper']
 
-init_qpos: [0.0, 0.46, 1.55, 2.55, -3, -1.7, 0.0]
+init_qpos: [0.0, 0.48, 1.57, -0.67, 0.0, 1.57, -0.35]
 
 # leader limb -> follower limb
 direct_mapping: # default is empty, which means 1:1 mapping

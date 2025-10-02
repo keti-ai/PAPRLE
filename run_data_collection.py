@@ -35,6 +35,7 @@ class Runner:
         self.teleop = Teleoperator(self.robot, leader_config, env_config, render_mode=env_config.render_teleop) # Solving IK for joint positions if not already given, check collision, and output proper joint positions.
         self.env = ENV_DICT[env_config.name](self.robot, leader_config, env_config, render_mode=env_config.render_env, leader=self.leader) # Actually send joint positions to the robot.
         self.env.vis_info = self.leader.update_vis_info(self.env.vis_info)
+        self.env.vis_info = self.teleop.update_vis_info(self.env.vis_info)
 
         if not env_config.off_feedback:
             self.feedback = Feedback(self.robot, self.leader, self.teleop, self.env)

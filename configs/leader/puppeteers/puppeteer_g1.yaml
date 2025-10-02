@@ -62,8 +62,8 @@ init_qpos: [0.0, 0.0, 0.0, 0.0,
 # leader limb -> follower limb
 direct_mapping: [] # default is empty, which means 1:1 mapping
 
-reset_pose: [[0.30, 0.275, 0.395], [0.30, -0.275, 0.398], [0.30, -0.275, 0.398], [0.30, -0.275, 0.398]]
-reset_cube: [0.200, 0.200, 0.100]
+reset_pose: [[-0.049, 0.095, -0.371], [-0.050, -0.081, -0.370], [0.059, 0.280, 0.080], [0.091, -0.344, 0.077]]
+reset_cube: [0.200, 0.100, 0.100]
 
 asset_cfg:
   asset_dir: 'models/'

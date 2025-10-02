@@ -10,6 +10,8 @@ class ParallelGripper:
     def solve(self, hand_command):
         if isinstance(hand_command, np.ndarray):
             out_command = hand_command
+        elif isinstance(hand_command, float):
+            out_command = [hand_command]
         elif hand_command == 'open':
             out_command = [0.0]
         elif hand_command == 'close':

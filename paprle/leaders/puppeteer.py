@@ -44,10 +44,10 @@ class Puppeteer:
 
         self.render_mode = render_mode
         render_base = leader_config.render_base
-        if render_mode != '' and render_base == 'trimesh':
+        if render_mode and render_base == 'trimesh':
             self.render_thread = Thread(target=self.__render_trimesh, args=())
             self.render_thread.start()
-        elif render_mode != '' and render_base == 'mujoco':
+        elif render_mode and render_base == 'mujoco':
             self.render_thread = Thread(target=self.__render_mujoco, args=())
             self.render_thread.start()
 
@@ -166,6 +166,7 @@ class Puppeteer:
         if self.exclude_hand_joints:
             self.include_joints = [i for i in range(len(self.leader_states)) if i not in self.exclude_hand_joints]
 
+        self.initialize_progress = 0.0
         self.leader_viz_info = {'color': 'blue',  'log': "Puppeteer is ready!"}
         self.end_detection_thread = Thread(target=self.detect_end_signal)
         self.end_detection_thread.start()
@@ -188,11 +189,14 @@ class Puppeteer:
     def detect_end_signal(self):
         dt, gripper_th = 0.03, 0.8
         iteration = 0
-        enough_to_end, threshold_time = 0.0, 3.0
+        enough_to_end, threshold_time = 0.0, self.leader_config.get('end_time', 3.0)
+        opened_after_init = False
         while not self.shutdown and not self.ros_shutdown():
             if self.leader_states is None or not self.is_ready:
+                opened_after_init = False
                 time.sleep(dt)
                 continue
+
             start_time = time.time()
             self.leader_viz_info['color'] = 'green'
             with self.pos_lock:
@@ -200,6 +204,15 @@ class Puppeteer:
             
             check_if_hands_thresh = (positions[self.hand_ids] - self.follower_min_vals) / (self.follower_max_vals - self.follower_min_vals)
             hand_closed = (check_if_hands_thresh > gripper_th).all()
+            if (not opened_after_init) and hand_closed and self.is_ready:
+                print("[Puppeteer] Hand closed after initialization, please open the hand to start end signal detection")
+                self.leader_viz_info['log'] = "[Puppeteer] Hand closed after initialization, please open the hand to start end signal detection"
+                hand_closed = False
+            elif (not opened_after_init) and (not hand_closed) and self.is_ready:
+                opened_after_init = True
+                print("[Puppeteer] Hand opened after initialization, start end signal detection")
+                self.leader_viz_info['log'] = "[Puppeteer] Hand opened after initialization, start end signal detection"
+            
             
             pin_qpos = pin.neutral(self.pin_model)
             pin_qpos[self.idx_pin2state[:, 0]] = positions[self.idx_pin2state[:, 1]]
@@ -274,7 +287,7 @@ class Puppeteer:
         )
 
     def __render_mujoco(self):
-        from paprle.visualizer.mujoco import MujocoViz
+        from paprle.visualizer.mujoco_vis import MujocoViz
         self.leader_model = MujocoViz(self.leader_robot)
         self.leader_model.init_viewer(
             viewer_title=self.leader_robot.robot_config.name, viewer_width=1200, viewer_height=800,
@@ -309,40 +322,43 @@ class Puppeteer:
             print("Open the gripper to initialize the controller....", end="\r")
             time.sleep(0.1)
 
+        
+        self.initialize_happening = False
         self.init_thread = Thread(target=self.initialize, args=(init_env_qpos,))
         self.init_thread.start()
         return
 
     def initialize(self, init_env_qpos):
-        gripper_th, iteration, initialize_progress = 0.8, 0, 0
-        dt, threshold_time = 0.01, 3
+        gripper_th, iteration, self.initialize_progress = 0.8, 0, 0
+        dt, threshold_time = 0.01, self.leader_config.get('start_time', 3.0)
         prev_pose = None
 
         arm_inds = [i for i in range(len(self.leader_robot.joint_names)) if i not in self.hand_ids]
-        while not initialize_progress >= threshold_time:
+        self.initialize_progress = 0.0
+        while not self.initialize_progress >= threshold_time:
             start_time = time.time()
             if self.shutdown or self.ros_shutdown(): return
-            print("Curr gripper values:", self.leader_states[self.hand_ids])
+            #print("Curr gripper values:", self.leader_states[self.hand_ids])
             check_if_hands_thresh = (self.leader_states[self.hand_ids] - self.follower_min_vals) / (self.follower_max_vals - self.follower_min_vals)
             hand_closed = (check_if_hands_thresh > gripper_th).all()
             if hand_closed:
-                initialize_progress += dt
+                self.initialize_progress += dt
             else:
-                initialize_progress = 0.0
+                self.initialize_progress = 0.0
 
-            curr_status = ''
+            curr_status = str(self.leader_states[self.hand_ids])
 
             diff = np.linalg.norm(self.leader_states[arm_inds] - prev_pose) if prev_pose is not None else 0.0
             if diff > 0.01:
-                initialize_progress = 0
+                self.initialize_progress = 0
                 curr_status += "Don't move!"
 
             print(
-                f"Close the grippers to initialize the controller.... {initialize_progress:.2f}/{threshold_time}   gripper: " + curr_status,
+                f"Close the grippers to initialize the controller.... {self.initialize_progress:.2f}/{threshold_time}   gripper: " + curr_status,
                 end="\r")
 
             self.leader_viz_info['color'] = 'blue'
-            self.leader_viz_info['log'] = f"Close the grippers to initialize the controller.... {initialize_progress:.2f}/{threshold_time}   gripper: " + curr_status
+            self.leader_viz_info['log'] = f"Close the grippers to initialize the controller.... {self.initialize_progress:.2f}/{threshold_time}   gripper: " + curr_status
 
             left_time = max(dt - (time.time() - start_time), 0.0)
             time.sleep(left_time)
@@ -370,6 +386,7 @@ class Puppeteer:
                 self.init_Rs.append(Rt[:3, :3])
 
         self.last_qpos = init_env_qpos
+        self.last_pin_qpos = pin.neutral(self.pin_model)
         self.leader_viz_info['color'] = 'green'
         self.leader_viz_info['log'] = 'Puppeteer initialized successfully!'
         self.is_ready = True
@@ -388,10 +405,12 @@ class Puppeteer:
             if self.motion_mapping_method == 'direct_scaling':
                 pin_qpos = pin.neutral(self.pin_model)
                 pin_qpos[self.idx_pin2state[:, 0]] = current_qpos[self.idx_pin2state[:, 1]]
+                self.last_pin_qpos = pin_qpos
                 new_eef_poses = self.get_eef_poses(pin_qpos, self.pin_model, self.pin_data, self.eef_frame_ids)
             elif self.motion_mapping_method == 'follower_reprojection':
                 pin_qpos = pin.neutral(self.vfollower_model)
                 pin_qpos[self.idx_vfpin2state[:, 0]] = current_qpos[self.idx_vfpin2state[:, 1]]
+                self.last_pin_qpos = pin_qpos
                 new_eef_poses = self.get_eef_poses(pin_qpos, self.vfollower_model, self.vfollower_data, self.vfollower_eef_frame_ids)
             else:
                 raise
@@ -437,17 +456,19 @@ class Puppeteer:
         return eef_poses
 
 if __name__ == '__main__':
-    from configs import BaseConfig
+    from configs import BaseConfig, add_info_robot_config
     from paprle.follower import Robot
     import time
 
     follower_config, leader_config, env_config = BaseConfig().parse()
+
     robot = Robot(follower_config)
     leader = Puppeteer(robot, leader_config, env_config, render_mode='human')
 
     for ep in range(100):
         leader.launch_init(None)
         while not leader.is_ready:
+            qpos = leader.get_status()
             time.sleep(0.01)
 
         while True:

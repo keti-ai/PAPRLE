@@ -1,0 +1,18 @@
+type: lafan
+name: lafan
+
+teleop_dt: 0.02
+output_type: delta_eef_pose # 'joint_pos' or 'delta_eef_pose'
+
+dataset_robot: 'g1'
+dataset_robot_urdf: 'models/humanoids/unitree_g1/g1_29dof.urdf'
+eef_names: ['left_ankle_roll_link', 'right_ankle_roll_link', 'left_rubber_hand', 'right_rubber_hand']
+motion_scale: 1.0 # Scale factor for motion data to match the robot size
+
+#dataset_robot: 'h1_2'
+#dataset_robot_urdf: 'models/humanoids/unitree_h1_2/h1_2.urdf'
+#eef_names: ['left_ankle_roll_link', 'right_ankle_roll_link', 'left_arm/end_effector_link', 'right_arm/end_effector_link']
+#motion_scale: 0.6 # Scale factor for motion data to match the robot size
+
+
+lafan_data_dir: '/home/obin/lerobot_dataset/LAFAN1_Retargeting_Dataset/'

@@ -32,7 +32,7 @@ sliders = MultiSliderClass(
     slider_maxs   = env.joint_ranges[idxs_range,1],
     slider_vals   = q_init,
     resolution    = 0.01,
-    VERBOSE       = False,
+    verbose       = False,
 )
 env.reset()
 

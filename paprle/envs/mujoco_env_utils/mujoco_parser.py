@@ -9,7 +9,7 @@ class MuJoCoParserClass(object):
     """
         MuJoCo Parser class
     """
-    def __init__(self, name='Robot',rel_xml_path=None,USE_MUJOCO_VIEWER=False,VERBOSE=True):
+    def __init__(self, name='Robot',rel_xml_path=None,USE_MUJOCO_VIEWER=False,VERBOSE=True, xml_string=None):
         """
             Initialize MuJoCo parser
         """
@@ -21,7 +21,7 @@ class MuJoCoParserClass(object):
         self.render_tick  = 0
         # Parse an xml file
         if self.rel_xml_path is not None:
-            self._parse_xml()
+            self._parse_xml(xml_string=xml_string)
         # Viewer
         self.USE_MUJOCO_VIEWER = USE_MUJOCO_VIEWER
         if self.USE_MUJOCO_VIEWER:
@@ -38,12 +38,15 @@ class MuJoCoParserClass(object):
             self.print_info()
 
 
-    def _parse_xml(self):
+    def _parse_xml(self, xml_string=None):
         """
             Parse an xml file
         """
-        self.full_xml_path    = os.path.abspath(os.path.join(os.getcwd(),self.rel_xml_path))
-        self.model            = mujoco.MjModel.from_xml_path(self.full_xml_path)
+        if xml_string:
+            self.model = mujoco.MjModel.from_xml_string(xml_string)
+        else:
+            self.full_xml_path    = os.path.abspath(os.path.join(os.getcwd(),self.rel_xml_path))
+            self.model            = mujoco.MjModel.from_xml_path(self.full_xml_path)
         self.data             = mujoco.MjData(self.model)
         self.dt               = self.model.opt.timestep
         self.HZ               = int(1/self.dt)

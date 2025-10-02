@@ -4,7 +4,7 @@ import numpy as np
 
 class BaseIKSolver:
     @abstractmethod
-    def step(self, pos: Optional[np.ndarray], quat: Optional[np.ndarray], repeat=1):
+    def solve(self, Rt: np.ndarray) -> np.ndarray:
         pass
 
     @abstractmethod

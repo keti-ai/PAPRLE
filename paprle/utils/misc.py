@@ -33,21 +33,22 @@ def import_pinocchio():
     # get python version
     import sys
     py = sys.version_info
+    # TODO: Make it clear
+    # let the user to decide which pinocchio version to use
+    # if ros-humble-pinocchio is installed, use it without removing noetic/humble
+    # and if not installed, remove all ros-related paths
 
     if py.major == 3 and py.minor == 10:
-        removed_p = []
-        for p in sys.path:
-            if 'noetic' in p:
-                sys.path.remove(p)
-                removed_p.append(p)
-    elif py.major == 3 and py.minor == 8:
         removed_p = []
         for p in sys.path:
             if 'humble' in p:
                 sys.path.remove(p)
                 removed_p.append(p)
-        sys.path.append("/usr/lib/python3/dist-packages")
-        sys.path.append("/opt/ros/noetic/lib/python3.8/site-packages/")
+    elif py.major == 3 and py.minor == 8:
+        removed_p = []
+        for p in sys.path:
+            if 'noetic' in p:
+                sys.path.remove(p)
 
     try:
         import pinocchio as pin

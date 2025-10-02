@@ -123,13 +123,14 @@ def sanity_check_leader_config(leader_config, robot_config, verbose=True):
         robot_name = robot_config.robot_cfg.name
         leader_config.limb_mapping = {}
         for id, limb_name in enumerate(robot_config.robot_cfg.limb_joint_names.keys()):
+            if id >= len(leader_config.limb_names): break
             left_or_right = leader_config.limb_names[id]
             leader_config.limb_mapping[left_or_right] = limb_name
-        print("Mapping completed.")
-        print("- leader_config.limb_mapping: ", leader_config.limb_mapping)
         if robot_name == 'g1':
             leader_config.limb_mapping['left'] = 'left_arm'
             leader_config.limb_mapping['right'] = 'right_arm'
+        print("Mapping completed.")
+        print("- leader_config.limb_mapping: ", leader_config.limb_mapping)
 
     # [TODO] add more sanity check for leader_config
 

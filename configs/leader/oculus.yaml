@@ -1,0 +1,5 @@
+type: oculus
+name: oculus
+output_type: delta_eef_pose
+teleop_dt: 0.02
+limb_names: ['right', 'left']  # order of hands in the output

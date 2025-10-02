@@ -84,18 +84,17 @@ class MujocoCollisionChecker:
             qpos = self.env.data.qpos.copy()
         self.env.forward(q=qpos)
         n_contact = len(p_contact_list)
-
         qpos = qpos[self.ctrl_joint_idxs]
         if n_contact > 0:
             collision_log += f'Collision detected. {n_contact} contact points. '
             if verbose:
-                return None, collision_log
+                return None, (contact_body1_list, contact_body2_list)
             else:
                 return None
         else:
             collision_log += 'No collision detected. '
             if verbose:
-                return qpos, collision_log
+                return qpos, (contact_body1_list, contact_body2_list)
             else:
                 return qpos
 

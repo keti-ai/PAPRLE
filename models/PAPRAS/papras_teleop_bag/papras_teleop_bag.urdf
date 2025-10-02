@@ -501,7 +501,7 @@
   </joint>
   <!-- gripper main link -->
    <!-- gripper main link -->
-    <link name="robot3/gripper_main_link">
+  <link name="robot3/gripper_main_link">
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -812,6 +812,14 @@
     <origin rpy="1.5707963267948966 -1.5707963267948966 0" xyz="0 0 0"/>
   </joint>
   <link name="robot3/camera_plugin_link"/>
+  <joint name="robot3/rgb_cam_mount" type="fixed">
+    <parent link="robot3/camera_mount"/>
+    <child link="robot3/rgb_cam_link"/>
+    <origin rpy="-0.44505895925855404 0 0" xyz="0.0272 -0.049 -0.044"/> <!--"0.044 -0.008 0.048405"/-->
+  </joint>
+  <link name="robot3/rgb_cam_link">
+  </link>
+
   <!-- link 1 -->
   <link name="robot4/link1">
     <visual>
@@ -1221,7 +1229,7 @@
     <origin rpy="0 -1.5707963267948966 3.141592653589793" xyz="0.006 0.0 0.0"/>
   </joint>
   <!-- gripper main link -->
-    <link name="robot4/gripper_main_link">
+  <link name="robot4/gripper_main_link">
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -1520,5 +1528,13 @@
     <child link="robot4/camera_plugin_link"/>
     <origin rpy="1.5707963267948966 -1.5707963267948966 0" xyz="0 0 0"/>
   </joint>
+    <joint name="robot4/rgb_cam_mount" type="fixed">
+    <parent link="robot4/camera_mount"/>
+    <child link="robot4/rgb_cam_link"/>
+    <origin rpy="-0.44505895925855404 0 0" xyz="0.0272 -0.049 -0.044"/> <!--"0.044 -0.008 0.048405"/-->
+  </joint>
+  <link name="robot4/rgb_cam_link">
+  </link>
+
 </robot>
 

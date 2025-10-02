@@ -32,6 +32,7 @@ robot_cfg:
       cam_target: [0.45, -0.23, 0.31]
     trimesh:
       pq:  [1.6723996641513676, -0.7507286806222732, 0.8682281906897257, 0.687230565118163, 0.4897546511147104, 0.2564309495761239, 0.4712724267113097]
+ik_solver: pincasadi
 ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
   # the number of arms in the urdf file, the name of the robot does not matter, but order matters.
   robot3:
@@ -43,7 +44,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot3/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot3/link1 # base_link in the ik model
 
   robot4:
     joint_names: ['robot1/joint1', 'robot1/joint2', 'robot1/joint3', 'robot1/joint4', 'robot1/joint5', 'robot1/joint6', 'robot1/joint7']
@@ -53,7 +54,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot4/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot4/link1 # base_link in the ik model
 
 ros1_cfg:
   lp_filter_alpha: 0.9
@@ -91,7 +92,7 @@ ros1_cfg:
   cameras: []
 
 ros2_cfg:
-  lp_filter_alpha: 0.8
+  lp_filter_alpha: 0.9
   motion_planning: 'moveit' # moveit or interpolation
   moveit:
     namespace: 'followers'
@@ -123,4 +124,28 @@ ros2_cfg:
       hand_state_sub_topic: ${...state_sub_topic}
       arm_state_sub_msg_type: ${...state_sub_msg_type}
       hand_state_sub_msg_type: ${...state_sub_msg_type}
-camera_cfg: null
+camera_cfg:
+  top:
+    serial_number: '233522070873'
+    rgb_resolution: [424,240]
+    depth_resolution: [480, 270]
+    get_aligned: false
+    depth_units: 0.000025
+#  top:
+#    serial_number: 'f1380471'
+#    rgb_resolution: [960,540 ]
+#    depth_resolution: [640, 480 ]
+#    get_aligned: false
+#    depth_units: 0.000025
+#  right:
+#    serial_number: '238722071363'
+#    rgb_resolution: [424,240]
+#    depth_resolution: [480, 270]
+#    get_aligned: false
+#    depth_units: 0.000025
+#  left:
+#    serial_number: '049222073036'
+#    rgb_resolution: [424,240]
+#    depth_resolution: [480, 270]
+#    get_aligned: false
+#    depth_units: 0.000025

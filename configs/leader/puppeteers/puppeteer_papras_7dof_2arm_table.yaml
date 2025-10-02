@@ -39,8 +39,8 @@ asset_cfg:
 
 direct_mapping_available_robots: ['papras_7dof_2arm_table', 'papras_teleop_bag']
 hand_limits: # for gripper range mapping
-  robot1: [[0.0, 1.0]]
-  robot2: [[0.0, 1.0]]
+  robot1: [[-2.0, -1.0]]
+  robot2: [[-2.0, -1.0]]
 
 render_base: 'trimesh'
 viewer_args:

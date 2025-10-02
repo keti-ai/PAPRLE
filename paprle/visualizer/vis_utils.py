@@ -4,7 +4,7 @@ import textwrap
 
 
 def append_text_to_image(image: np.ndarray, text: str, font_size=1.0, font_line=cv2.LINE_AA,
-                         background=(255,255,255), font_color=(0,0,0)):
+                         background=(255,255,255), font_color=(0,0,0), concat='up'):
     r""" Appends text underneath an image of size (height, width, channels).
     The returned image has white text on a black background. Uses textwrap to
     split long text into multiple lines.
@@ -41,5 +41,8 @@ def append_text_to_image(image: np.ndarray, text: str, font_size=1.0, font_line=
             lineType=linetype,
         )
     text_image = blank_image[0 : y + 10, 0:w]
-    final = np.concatenate((text_image, image), axis=0)
+    if concat == 'up':
+        final = np.concatenate((text_image, image), axis=0)
+    elif concat == 'down':
+        final = np.concatenate((image, text_image), axis=0)
     return final

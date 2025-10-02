@@ -2,6 +2,8 @@ import rclpy
 import numpy as np
 import time
 import copy
+import os
+import shutil
 from threading import Thread, Lock
 from rclpy.node import Node
 
@@ -41,7 +43,8 @@ class ROS2Env(BaseEnv):
             rclpy.init()
         except:
             print("rclpy already initialized")
-
+        self.shutdown = False
+        self.robot = robot
         self.motion_planning_method = robot.ros2_config.motion_planning
         if self.motion_planning_method == 'moveit':
             self.moveit_node = Node('teleop_env_moveit')
@@ -50,7 +53,8 @@ class ROS2Env(BaseEnv):
             self.setup_moveit()
 
         self.threads = []
-       
+        self.shutdown = False
+
         # Setup Subscribers and Publishers
         topics_to_sub, topics_to_pub = {}, {}
         for limb_name, limb_info in robot.ros2_config.robots.items():
@@ -108,7 +112,7 @@ class ROS2Env(BaseEnv):
         self.last_vel, self.dt = None, self.robot.control_dt
         if robot.name == 'g1':
             from paprle.envs.ros2_env_utils.g1_subscribe_and_publish import ControllerPublisher as G1ControllerPublisher
-            self.controller_publisher = G1ControllerPublisher(topics_to_pub, robot.joint_names, self.state_subscriber.states)
+            self.controller_publisher = G1ControllerPublisher(topics_to_pub, robot.joint_names, self.state_subscriber.states, waist_states=self.state_subscriber.waist_states)
         else:
             self.controller_publisher = ControllerPublisher(topics_to_pub, robot.joint_names, self.state_subscriber.states)
 
@@ -205,8 +209,8 @@ class ROS2Env(BaseEnv):
         self.hand_moveit_init_pose_name = getattr(self.robot.ros2_config.moveit, 'hand_init_pose_name', self.moveit_init_pose_name)
         self.hand_moveit_rest_pose_name = getattr(self.robot.ros2_config.moveit, 'hand_rest_pose_name', self.moveit_init_pose_name)
 
-        self.arms_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.arm_group_name][self.moveit_init_pose_name])
-        self.arms_group.wait_until_executed()
+        #self.arms_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.arm_group_name]['init'])
+        #self.arms_group.wait_until_executed()
 
         if self.moveit_hand_joint_names:
             self.hand_group = MoveIt2(node=self.moveit_node, joint_names=self.moveit_hand_joint_names,
@@ -217,6 +221,8 @@ class ROS2Env(BaseEnv):
             self.hand_group.max_velocity = self.moveit_config.max_velocity_scaling_factor
             self.hand_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.hand_group_name][self.hand_moveit_init_pose_name])
             self.hand_group.wait_until_executed()
+            #self.hand_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.hand_group_name]['init'])
+            #self.hand_group.wait_until_executed()
         return
 
     def initialize(self, initial_qpos: np.ndarray) -> None:
@@ -238,6 +244,7 @@ class ROS2Env(BaseEnv):
                 self.controller_publisher.command_pos = initial_qpos
             while not (np.array(list(self.controller_publisher.interpolate_time_.values())) > self.controller_publisher.interpolate_duration).all():
                 time.sleep(0.1)
+            print("Initialization complete.")
 
         self.controller_publisher.mode = 'direct_publish'
         self.controller_publisher.interpolate_time_ = {
@@ -259,6 +266,7 @@ class ROS2Env(BaseEnv):
         self.controller_publisher.destroy_node()
         self.state_subscriber.destroy_node()
         self.moveit_node.destroy_node()
+
         for thread in self.threads:
             thread.join()
         return
@@ -287,6 +295,18 @@ class ROS2Env(BaseEnv):
                 self.hand_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.hand_group_name][self.hand_moveit_init_pose_name])
                 self.hand_group.wait_until_executed()
 
+            # If it fails to reach the init pose, retry!
+            curr_pose = copy.deepcopy(self.state_subscriber.states['pos'])
+            init_pose = self.robot.init_qpos
+            dist_to_init = np.linalg.norm(curr_pose - init_pose)
+            iter = 0
+            if dist_to_init > 0.1:
+                self.arms_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.arm_group_name]['init'])
+                self.arms_group.wait_until_executed()
+
+                if self.moveit_hand_joint_names:
+                    self.hand_group.move_to_configuration(self.moveit_group_poses[self.moveit_config.hand_group_name]['init'])
+                    self.hand_group.wait_until_executed()
         else:
             # else, we will just interpolate the poses to the init pose, so we don't need to clear the target qpos
             # actually, considering g1, it is not good to clear the target qpos, because it will make g1 to damping mode - dangerous!
@@ -300,6 +320,7 @@ class ROS2Env(BaseEnv):
                 self.controller_publisher.command_pos = init_qpos
             while not (np.array(list(self.controller_publisher.interpolate_time_.values())) > self.controller_publisher.interpolate_duration).all():
                 time.sleep(0.1)
+            print("Reset finished")
 
         self.controller_publisher.mode = 'direct_publish'
         self.controller_publisher.interpolate_time_ = {
@@ -328,6 +349,12 @@ class ROS2Env(BaseEnv):
     def get_current_qpos(self):
         return np.array(self.state_subscriber.states['pos'].copy())
 
+    def get_current_qvel(self):
+        return np.array(self.state_subscriber.states['vel'].copy())
+
+    def get_current_qeff(self):
+        return np.array(self.state_subscriber.states['eff'].copy())
+
     def get_observation(self):
         obs_dict = {}
         if self.camera_reader is not None:
@@ -337,31 +364,121 @@ class ROS2Env(BaseEnv):
         obs_dict['qeff'] = np.array(self.state_subscriber.states['eff'].copy())
         return obs_dict
 
+    ## RGB image rendering based on cv2
+    # def render(self):
+    #     pad_width = 10
+    #     view_im = None
+    #     color_dict = {'blue': (0, 0, 255), 'green': (0, 255, 0), 'red': (255, 0, 0)}
+    #     last_render_time = time.time()
+    #     target_fps = 30.0
+    #     target_frame_time = 1.0 / target_fps
+    #
+    #     while not self.shutdown:
+    #         current_time = time.time()
+    #
+    #         if self.camera_reader is not None:
+    #             view_im = self.camera_reader.render()
+    #         else:
+    #             view_im = np.zeros((480, 640, 3), dtype=np.uint8)
+    #             view_im = cv2.putText(view_im, 'No camera available', (10, 240), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
+    #
+    #         str_color = (255, 255, 255)
+    #         for node_name, node_info in self.vis_info.items():
+    #             str_color = node_info['color']
+    #             if isinstance(str_color, str):
+    #                 str_color = color_dict[str_color]
+    #             view_im = append_text_to_image(view_im, node_info['log'], font_color=(0,0,0))
+    #         self.view_im = cv2.copyMakeBorder(view_im, pad_width, pad_width, pad_width, pad_width, cv2.BORDER_CONSTANT, value=str_color)
+    #
+    #         if self.render_mode and self.view_im is not None:
+    #             cv2.imshow('ENV', self.view_im[..., ::-1])
+    #             k = cv2.waitKey(1)
+    #
+    #         # Maintain target FPS
+    #         elapsed_time = time.time() - current_time
+    #         sleep_time = max(0, target_frame_time - elapsed_time)
+    #         if sleep_time > 0:
+    #             time.sleep(sleep_time)
+    #     return
+
     def render(self):
         pad_width = 10
         view_im = None
         color_dict = {'blue': (0, 0, 255), 'green': (0, 255, 0), 'red': (255, 0, 0)}
+        last_render_time = time.time()
+        target_fps = 30.0
+        target_frame_time = 1.0 / target_fps
+
+        from paprle.visualizer.viser_vis import ViserViz
+        self.viz = ViserViz(self.robot)
+        image_updated = False
+        self.viz.create_text_handle(":)", name='collision')
+        data_dir = 'demo_data/'
         while not self.shutdown:
+            current_time = time.time()
+            # qpos = self.get_current_qpos()
+            # self.viz.set_qpos(qpos)
             if self.camera_reader is not None:
                 view_im = self.camera_reader.render()
-            else:
-                view_im = np.zeros((480, 640, 3), dtype=np.uint8)
-                view_im = cv2.putText(view_im, 'No camera available', (10, 240), cv2.FONT_HERSHEY_SIMPLEX, 1,(255, 255, 255), 2, cv2.LINE_AA)
 
-            str_color = (255, 255, 255)
-            for node_name, node_info in self.vis_info.items():
-                str_color = node_info['color']
-                if isinstance(str_color, str):
-                    str_color = color_dict[str_color]
-                view_im = append_text_to_image(view_im, node_info['log'], font_color=(0,0,0))
-            self.view_im = cv2.copyMakeBorder(view_im, pad_width, pad_width, pad_width, pad_width, cv2.BORDER_CONSTANT, value=str_color)
+                str_color = (255, 255, 255)
+                if 'leader' in self.vis_info:
+                    node_info = self.vis_info['leader']
+                    str_color = node_info['color']
+                    if isinstance(str_color, str):
+                        str_color = color_dict[str_color]
+                    view_im = append_text_to_image(view_im, node_info['log'], font_color=(0,0,0))
 
-            if self.render_mode and self.view_im is not None:
-                cv2.imshow('ENV', self.view_im[..., ::-1])
-                k = cv2.waitKey(1)
-            time.sleep(0.01)
+                stat_str = f"Total Ep.: {len(os.listdir(data_dir))} "
+                disk_stats = shutil.disk_usage(data_dir)
+                free_gb = disk_stats.free / (1024**3)
+                stat_str += f"Free space: {free_gb:.2f} GB"
+                view_im = append_text_to_image(view_im, stat_str, font_color=(0,0,0), concat='down')
+                self.view_im = cv2.copyMakeBorder(view_im, pad_width, pad_width, pad_width, pad_width, cv2.BORDER_CONSTANT, value=str_color)
+
+                if not image_updated:
+                    self.viz.create_image_handle(self.view_im)
+                    image_updated = True
+                else:
+                    self.viz.update_image_handle(self.view_im)
+
+            if 'teleop' in self.vis_info:
+                col1, col2 = self.vis_info['teleop']['collision_list']
+                qpos = self.vis_info['teleop']['qpos']
+                self.viz.set_qpos(qpos)
+
+                if len(col1) > 0:
+                    collision_log = "COLLISION!!!"
+                    #for col1_i, col2_i in zip(col1, col2):
+                    #    collision_log += f"{col1_i} <-> {col2_i}; \n"
+                        # if col1_i == 'world':
+                        #     pos1 = None
+                        # else:
+                        #     pos1 = self.viz.link_name_to_frame[col1_i].position
+                        # if col2_i == 'world':
+                        #     pos2 = None
+                        # else:
+                        #     pos2 = self.viz.link_name_to_frame[col2_i].position
+                        # if pos1 is None:
+                        #     pos1 = [pos2[0], pos2[1], 0.0]
+                        # elif pos2 is None:
+                        #     pos2 = [pos1[0], pos1[1], 0.0]
+                        # handle = self.viz.server.scene.add_line_segments(f"collision_{col1_i}_{col2_i}", start=pos1, end=pos2, color=(1, 0, 0), radius=0.005, persist_time=0.1)
+
+                    self.viz.update_text_handle(collision_log, name='collision')
+                else:
+                    self.viz.update_text_handle("No Collision", name='collision')
+
+            # if self.render_mode and self.view_im is not None:
+            #     cv2.imshow('ENV', self.view_im[..., ::-1])
+            #     k = cv2.waitKey(1)
+
+            # Maintain target FPS
+            elapsed_time = time.time() - current_time
+            sleep_time = max(0, target_frame_time - elapsed_time)
+            if sleep_time > 0:
+                time.sleep(sleep_time)
         return
-
 
 
 if __name__ == '__main__':

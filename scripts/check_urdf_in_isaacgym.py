@@ -39,6 +39,50 @@ def generate_joint_limit_trajectory(joint_limits: np.ndarray, loop_steps: int):
     trajectory = alphas * trajectory_via_points[:, inds - 1] + (1.0 - alphas) * trajectory_via_points[:, inds]
     return trajectory.T
 
+def render(sim, gym, viewer):
+    gym.step_graphics(sim)
+    gym.draw_viewer(viewer, sim, True)
+    gym.sync_frame_time(sim)
+    return
+
+def get_curr_viewer_camera_setting(sim, gym, viewer, env):
+    transform = gym.get_viewer_camera_transform(viewer, env)
+
+    curr_pos = transform.p
+    target_pos = transform.transform_vector(gymapi.Vec3(1, 0, 0)) + curr_pos
+
+    gym.viewer_camera_look_at(viewer, env, curr_pos, target_pos)
+
+    print(f"cam_pos: [{curr_pos.x:.2f}, {curr_pos.y:.2f}, {curr_pos.z:.2f}]")
+    print(f"cam_target: [{target_pos.x:.2f}, {target_pos.y:.2f}, {target_pos.z:.2f}]")
+
+    for i in range(1000):
+        render(sim, gym, viewer)
+
+    curr_pos = transform.p
+    target_pos = transform.transform_vector(gymapi.Vec3(0, 1, 0)) + curr_pos
+
+    gym.viewer_camera_look_at(viewer, env, curr_pos, target_pos)
+
+    print(f"cam_pos: [{curr_pos.x:.2f}, {curr_pos.y:.2f}, {curr_pos.z:.2f}]")
+    print(f"cam_target: [{target_pos.x:.2f}, {target_pos.y:.2f}, {target_pos.z:.2f}]")
+
+    for i in range(1000):
+        render(sim, gym, viewer)
+
+    curr_pos = transform.p
+    target_pos = transform.transform_vector(gymapi.Vec3(0, 0, 1)) + curr_pos
+
+    gym.viewer_camera_look_at(viewer, env, curr_pos, target_pos)
+
+    print(f"cam_pos: [{curr_pos.x:.2f}, {curr_pos.y:.2f}, {curr_pos.z:.2f}]")
+    print(f"cam_target: [{target_pos.x:.2f}, {target_pos.y:.2f}, {target_pos.z:.2f}]")
+
+    for i in range(1000):
+        render(sim, gym, viewer)
+
+    return
+    
 
 def visualize_urdf(urdf_file, simulate, disable_self_collision, fix_root):
     # initialize gym

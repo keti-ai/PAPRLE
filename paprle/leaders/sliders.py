@@ -29,7 +29,7 @@ class Sliders:
             slider_maxs=robot.joint_limits[:, 1],
             slider_vals=robot.init_qpos,
             resolution=0.001,
-            VERBOSE=verbose,
+            verbose=verbose,
         )
         # add reset button in the slider
         self.reset_button = tk.Button(self.sliders.gui, text="RESET", command=self.reset)

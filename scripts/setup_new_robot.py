@@ -401,12 +401,10 @@ class URDFConfigGUI(QWidget):
         self.highlight_group_joints(current_group, self.group_dict, self.joint_list)
         self.print_log(f"Assigned joints {selected_joints} to group '{group_name}'.")
 
-
     def rename_group(self, item, column):
         old_names = list(self.group_dict.keys())
-        new_name = item.text(0)
+        new_name = item.text(0)        # If it's a new unique name
 
-        # If it's a new unique name
         if new_name not in self.group_dict:
             # Find which group this item used to be
             for old in old_names:

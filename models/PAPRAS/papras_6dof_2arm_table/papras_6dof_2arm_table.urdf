@@ -53,7 +53,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="assets/leaders/table.stl"/>
+        <mesh filename="assets/scene/table_simple.stl"/>
       </geometry>
       <material name="">
         <color rgba="0.501960784313725 0.501960784313725 0.501960784313725 1"/>
@@ -62,7 +62,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="assets/leaders/table.stl"/>
+        <mesh filename="assets/scene/table_simple.stl"/>
       </geometry>
     </collision>
   </link>

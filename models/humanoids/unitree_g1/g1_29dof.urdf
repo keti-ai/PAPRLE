@@ -456,7 +456,7 @@
       </material>
     </visual>
   </link>
-  <joint name="waist_yaw_joint" type="fixed">
+  <joint name="waist_yaw_joint" type="revolute">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="pelvis"/>
     <child link="waist_yaw_link"/>
@@ -479,7 +479,7 @@
       </material>
     </visual>
   </link>
-  <joint name="waist_roll_joint" type="fixed">
+  <joint name="waist_roll_joint" type="revolute">
     <origin xyz="-0.0039635 0 0.035" rpy="0 0 0"/>
     <parent link="waist_yaw_link"/>
     <child link="waist_roll_link"/>
@@ -508,7 +508,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="waist_pitch_joint" type="fixed">
+  <joint name="waist_pitch_joint" type="revolute">
     <origin xyz="0 0 0.019" rpy="0 0 0"/>
     <parent link="waist_roll_link"/>
     <child link="torso_link"/>
@@ -859,6 +859,16 @@
       </material>
     </visual>
   </link>
+
+  <joint name="left_eef_joint" type="fixed">
+    <origin xyz="0.0415 0.003 0" rpy="-1.57 0 0"/>
+    <parent link="left_wrist_yaw_link"/>
+    <child link="left_end_effector_link"/>
+  </joint>
+
+  <link name="left_end_effector_link">
+  </link>
+
   <link name="right_shoulder_pitch_link">
     <inertial>
       <origin xyz="0 -0.035892 -0.011628" rpy="0 0 0"/>
@@ -1082,5 +1092,15 @@
         <color rgba="0.7 0.7 0.7 1"/>
       </material>
     </visual>
+  </link>
+
+
+  <joint name="right_eef_joint" type="fixed">
+    <origin xyz="0.0415 0.003 0" rpy="1.57 0 0"/>
+    <parent link="right_wrist_yaw_link"/>
+    <child link="right_end_effector_link"/>
+  </joint>
+
+  <link name="right_end_effector_link">
   </link>
 </robot>

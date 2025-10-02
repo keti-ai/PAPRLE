@@ -22,7 +22,8 @@ except ImportError as e:
 
 from threading import Thread
 
-TIME_DEBUG = False
+TIME_DEBUG = True
+TIME_DEBUG_PRINT = False
 class Runner:
     def __init__(self, robot_config, leader_config, env_config):
         self.robot_config, self.leader_config, self.env_config = robot_config, leader_config, env_config
@@ -33,6 +34,8 @@ class Runner:
         self.teleop = Teleoperator(self.robot, leader_config, env_config, render_mode=env_config.render_teleop) # Solving IK for joint positions if not already given, check collision, and output proper joint positions.
         self.env = ENV_DICT[env_config.name](self.robot, leader_config, env_config, render_mode=env_config.render_env, leader=self.leader) # Send joint positions to the robot.
         self.env.vis_info = self.leader.update_vis_info(self.env.vis_info)
+        self.env.vis_info = self.teleop.update_vis_info(self.env.vis_info)
+
 
         if not env_config.off_feedback:
             self.feedback = Feedback(self.robot, self.leader, self.teleop, self.env)
@@ -44,6 +47,8 @@ class Runner:
         self.reset = False
 
         self.last_log_time = None
+
+        self.time_sequence = {}
 
     def shutdown_handler(self, sig, frame):
         print("Shutting down the system..")
@@ -57,8 +62,19 @@ class Runner:
 
     def log_time(self, msg=''):
         if self.last_log_time is not None and msg != '':
-            print(msg, time.time() - self.last_log_time)
+            time_diff = time.time() - self.last_log_time
+            if TIME_DEBUG_PRINT: print(msg, time_diff)
+            if msg not in self.time_sequence:
+                self.time_sequence[msg] = []
+            self.time_sequence[msg].append(time_diff)
         self.last_log_time = time.time()
+        return
+
+    def summarize_time(self):
+        print("======== Time Summary ========")
+        for key, value in self.time_sequence.items():
+            print(f"{key}: mean {sum(value)/len(value):.4f}, max {max(value):.4f}, min {min(value):.4f}")
+        print("======== Time Summary ========")
         return
 
     def render_thread_func(self):
@@ -100,7 +116,6 @@ class Runner:
             print(status_str + bar_list[iter%16], end="\r")
             start_time = time.time()
             if TIME_DEBUG:
-                print("===========================")
                 self.log_time('Start Loop')
 
             # 1. Get command from leader
@@ -111,6 +126,9 @@ class Runner:
             # If reset signal is detected, reset the environment
             if self.leader.require_end or self.reset:
                 self.reset = False
+                if TIME_DEBUG:
+                    self.summarize_time()
+                    self.time_sequence = {}
                 init_env_qpos = self.env.reset()
                 self.teleop.reset(init_env_qpos)
                 shutdown = self.leader.launch_init(init_env_qpos)  # Wait in the initialize function until the leader is ready (for visionpro and gello)

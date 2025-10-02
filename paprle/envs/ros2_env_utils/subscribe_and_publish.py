@@ -1,6 +1,7 @@
 from rclpy.node import Node
 from rcl_interfaces.srv import GetParameters
 from rclpy.parameter import Parameter, ParameterType
+from rclpy.time import Time
 from std_msgs.msg import Header
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -16,6 +17,8 @@ class JointStateSubscriber(Node):
         self.joint_mapping = {}
         self.sub_info = sub_info
         self.flag_first_state_updated = {}
+        self.last_time_updated = {}
+        self.last_msg = {}
         for sub_topic, sub_info in sub_info.items():
             sub_msg_type = sub_info['type']
             self.joint_mapping[sub_topic] = None
@@ -23,8 +26,9 @@ class JointStateSubscriber(Node):
                 JointState,
                 sub_topic,
                 partial(self.listener_callback, topic=sub_topic),
-                10
+                1
             )
+            #self.create_timer(0.02, partial(self.update, topic=sub_topic))
             self.flag_first_state_updated[sub_topic] = False
         self.lock = Lock()
         self.states = {
@@ -40,11 +44,29 @@ class JointStateSubscriber(Node):
                 if name in self.output_joint_names:
                     self.joint_mapping[topic].append((id, self.output_joint_names.index(name)))
             self.joint_mapping[topic] = np.array(self.joint_mapping[topic])
+        self.last_msg[topic] = msg
+
+    #ef update(self, topic):
         with self.lock:
+            msg = self.last_msg.get(topic, None)
             id1, id2 = self.joint_mapping[topic][:, 0], self.joint_mapping[topic][:, 1]
-            self.states['pos'][id2] = np.array(msg.position)[id1]
-            self.states['vel'][id2] = np.array(msg.velocity)[id1]
-            self.states['eff'][id2] = np.array(msg.effort)[id1]
+            pos = np.array(msg.position)[id1]
+            nan_mask = np.isnan(pos)
+            if nan_mask.any():
+                mask = nan_mask
+                print("[JointStateSubscriber] NaN detected in position, using previous state")
+                pos[mask] = self.states['pos'][id2][mask]  # If position is NaN, keep the previous state
+            vel = np.array(msg.velocity)[id1]
+            # if np.isnan(vel).any():
+            #     mask = np.isnan(vel)
+            #     vel[mask] = self.states['vel'][id2][mask]  # If velocity is NaN, keep the previous state
+            eff = np.array(msg.effort)[id1]
+            # if np.isnan(eff).any():
+            #     mask = np.isnan(eff)
+            #     eff[mask] = self.states['eff'][id2][mask]  # If effort is NaN, keep the previous state
+            self.states['pos'][id2] = pos
+            self.states['vel'][id2] = vel
+            self.states['eff'][id2] = eff
         self.flag_first_state_updated[topic] = True
 
 
@@ -89,7 +111,6 @@ class ControllerPublisher(Node):
         if self.command_pos is not None:
             msg = JointTrajectory()
             msg.header = Header()
-            msg.header.stamp = self.get_clock().now().to_msg()
             msg.joint_names = self.pub_info[topic]['joint_names']
             mapping_inds = self.joint_mapping[topic]
             if self.mode == 'direct_publish':
@@ -102,6 +123,7 @@ class ControllerPublisher(Node):
                 vel = [0.0] * len(mapping_inds)
                 acc = [0.0] * len(mapping_inds)
                 self.interpolate_time_[topic] += self.timer_period
+            msg.header.stamp = self.get_clock().now().to_msg()
             msg.points = [JointTrajectoryPoint(positions=pos, velocities=vel, accelerations=acc,
                                                time_from_start=self.duration_msg)]
             self.pubs[topic].publish(msg)

@@ -31,12 +31,27 @@ except ImportError:
 try:
     from paprle.leaders.visionpro import VisionPro
     LEADERS_DICT['visionpro'] = VisionPro
-except ImportError:
-    #raise
-    print("Visionpro not available. Please install the required dependencies to use it.")
+except Exception as e:
+    print("VisionPro not available. Please install the required dependencies to use it.")
+    print(e)
 
 try:
     from paprle.leaders.umi_dataset import UMIDataset
     LEADERS_DICT['umi'] = UMIDataset
 except ImportError:
     print("UMIDataset not available. Please install the required dependencies to use it.")
+
+
+try:
+    from paprle.leaders.oculus import Oculus
+    LEADERS_DICT['oculus'] = Oculus
+except ImportError as e:
+    print("Oculus not available. Please install the required dependencies to use it.")
+    print(e)
+
+
+try:
+    from paprle.leaders.lafan_dataset import LAFAN_Dataset
+    LEADERS_DICT['lafan'] = LAFAN_Dataset
+except ImportError:
+    print("LAFAN_Dataset not available. Please install the required dependencies to use it.")

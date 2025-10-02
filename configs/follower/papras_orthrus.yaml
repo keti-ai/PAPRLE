@@ -44,7 +44,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot3/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot3/link1 # base_link in the original urdf file,not the base_link in the ik model
 
   robot4:
     joint_names: ['robot1/joint1', 'robot1/joint2', 'robot1/joint3', 'robot1/joint4', 'robot1/joint5', 'robot1/joint6', 'robot1/joint7']
@@ -54,7 +54,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot4/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot4/link1 # base_link in the original urdf file,not the base_link in the ik model
 
 ros2_cfg:
   lp_filter_alpha: 0.9

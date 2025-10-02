@@ -46,7 +46,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_6dof/papras_6dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot1/link1 # base_link in the original urdf file,not the base_link in the ik model
+    base_link: robot1/link1 # base_link in the ik model
 
 camera_cfg:
   right:

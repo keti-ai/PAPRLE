@@ -38,7 +38,7 @@ class SimPuppeteer:
             slider_maxs=self.leader_robot.joint_limits[:, 1],
             slider_vals=self.leader_robot.init_qpos,
             resolution=0.001,
-            VERBOSE=verbose,
+            verbose=verbose,
         )
         # add reset button in the slider
         self.reset_button = tk.Button(self.sliders.gui, text="RESET", command=self.reset)
@@ -46,10 +46,10 @@ class SimPuppeteer:
 
         self.render_mode = render_mode
         render_base = leader_config.render_base
-        if render_mode != 'none' and render_base == 'trimesh':
+        if render_mode and render_base == 'trimesh':
             self.render_thread = Thread(target=self.__render_trimesh, args=())
             self.render_thread.start()
-        elif render_mode != 'none' and render_base == 'mujoco':
+        elif render_mode and render_base == 'mujoco':
             self.render_thread = Thread(target=self.__render_mujoco, args=())
             self.render_thread.start()
 
@@ -178,7 +178,7 @@ class SimPuppeteer:
         )
 
     def __render_mujoco(self):
-        from paprle.visualizer.mujoco import MujocoViz
+        from paprle.visualizer.mujoco_vis import MujocoViz
         self.leader_model = MujocoViz(self.leader_robot)
         self.leader_model.init_viewer(
             viewer_title=self.leader_robot.robot_config.name, viewer_width=1200, viewer_height=800,
@@ -237,6 +237,7 @@ class SimPuppeteer:
             init_env_qpos = qpos
         self.sliders.set_slider_values(init_env_qpos)
         self.last_qpos = init_env_qpos
+        self.last_pin_qpos = pin.neutral(self.pin_model)
         return
 
     def close_init(self):
@@ -248,14 +249,17 @@ class SimPuppeteer:
         q_from_sliders[self.hand_ids] = q_from_sliders[self.hand_ids] * self.hand_scales + self.hand_offsets
 
         self.last_qpos = q_from_sliders
+        self.last_pin_qpos = None
         if self.output_type == 'delta_eef_pose':
             if self.motion_mapping_method == 'direct_scaling':
                 pin_qpos = pin.neutral(self.pin_model)
                 pin_qpos[self.idx_pin2state[:, 0]] = q_from_sliders[self.idx_pin2state[:, 1]]
+                self.last_pin_qpos = pin_qpos
                 new_eef_poses = self.get_eef_poses(pin_qpos, self.pin_model, self.pin_data, self.eef_frame_ids)
             elif self.motion_mapping_method == 'follower_reprojection':
                 pin_qpos = pin.neutral(self.vfollower_model)
                 pin_qpos[self.idx_vfpin2state[:, 0]] = q_from_sliders[self.idx_vfpin2state[:, 1]]
+                self.last_pin_qpos = pin_qpos
                 new_eef_poses = self.get_eef_poses(pin_qpos, self.vfollower_model, self.vfollower_data, self.vfollower_eef_frame_ids)
             else:
                 raise

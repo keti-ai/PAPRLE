@@ -22,11 +22,23 @@ class MujocoEnv(BaseEnv):
         self.sim = MuJoCoParserClass(self.robot.name, rel_xml_path=robot.xml_path, VERBOSE=verbose)
 
         self.simulate_steps = getattr(env_config, 'simulate', False)
+
+        if self.simulate_steps:
+            self.sim_joint_names = self.sim.ctrl_joint_names
+            if len(self.sim_joint_names) == 0:
+                self.sim_joint_names = self.sim.joint_names
+                self.simulate_steps = False
+            self.sim_joint_idxs = [self.sim_joint_names.index(joint) for joint in self.sim_joint_names]
+        else:
+            self.sim_joint_names = self.sim.joint_names
+            self.sim_joint_idxs = np.arange(len(self.sim_joint_names))
+        self.ctrl_joint_idxs, self.mimic_joints_info = self.robot.set_joint_idx_mapping(self.sim_joint_names)
+
         self.dt = robot.control_dt
         self.HZ = 1/self.dt
 
         self.ctrl_mode = getattr(env_config, 'ctrl_mode', 'P')
-        self.kp = getattr(env_config, 'kp', 1000)
+        self.kp = getattr(env_config, 'kp', 1000.0)
         self.kd = getattr(env_config, 'kd', 2 * np.sqrt(self.kp) * 0.7)
         mass_matrix = np.ndarray(shape=(len(self.sim.data.qvel), len(self.sim.data.qvel)), dtype=np.float64, order='C')
         mujoco.mj_fullM(self.sim.model, mass_matrix, self.sim.data.qM)
@@ -48,8 +60,6 @@ class MujocoEnv(BaseEnv):
         self.base_mats = getattr(self.robot, 'base_pose', None)
         self.num_eef, self.eef_names = self.robot.num_limbs, self.robot.eef_names
 
-        self.sim_joint_names = self.sim.ctrl_joint_names if self.simulate_steps else self.sim.joint_names
-        self.ctrl_joint_idxs, self.mimic_joints_info = self.robot.set_joint_idx_mapping(self.sim_joint_names)
 
         self.render_mode = render_mode
         self.vis_info = None
@@ -94,7 +104,7 @@ class MujocoEnv(BaseEnv):
         action = lp_filter(action, self.prev_action, alpha=0.05)
         self.prev_action = action
 
-        new_qpos = np.zeros(self.dof)
+        new_qpos = np.zeros(len(self.sim_joint_idxs))
         new_qpos[self.ctrl_joint_idxs] = action
         if len(self.mimic_joints_info):
             new_qpos[self.mimic_joints_info[:, 0].astype(np.int32)] = new_qpos[self.mimic_joints_info[:, 1].astype(np.int32)] * self.mimic_joints_info[:, 2] + self.mimic_joints_info[:, 3]
@@ -129,8 +139,8 @@ class MujocoEnv(BaseEnv):
         self.sim.tick = self.sim.tick + 1
 
     def get_state(self):
-        qpos = self.sim.data.qpos[self.sim.ctrl_qpos_idxs] # joint position
-        qvel = self.sim.data.qvel[self.sim.ctrl_qvel_idxs] # joint velocity
+        qpos = self.sim.data.qpos[self.sim_joint_idxs] # joint position
+        qvel = self.sim.data.qvel[self.sim_joint_idxs] # joint velocity
         # Contact information
         contact_info = np.zeros(self.sim.n_sensor)
         #contact_idxs = np.where(self.sim.get_sensor_values(sensor_names=self.sim.sensor_names) > 0.2)[0]
@@ -144,7 +154,7 @@ class MujocoEnv(BaseEnv):
         return state
 
     def get_state_as_command(self):
-        qpos = self.sim.data.qpos[self.ctrl_joint_idxs]
+        qpos = self.sim.data.qpos[self.sim_joint_idxs][self.ctrl_joint_idxs]
         return qpos
 
     def get_observation(self):
@@ -173,12 +183,13 @@ class MujocoEnv(BaseEnv):
         return self.sim.n_dof
 
     def set_qpos(self, qpos):
-        new_qpos = np.zeros(self.dof)
+        new_qpos = np.zeros(len(self.sim_joint_names))
         new_qpos[self.ctrl_joint_idxs] = qpos
         if len(self.mimic_joints_info):
             new_qpos[self.mimic_joints_info[:, 0].astype(np.int32)] = new_qpos[self.mimic_joints_info[:, 1].astype(np.int32)] * self.mimic_joints_info[:, 2] + self.mimic_joints_info[:, 3]
         self.curr_qpos = new_qpos
         self.sim.forward(q=new_qpos, INCREASE_TICK=True)
+        self.sim.data.qpos[self.sim_joint_idxs] = new_qpos
         self.sim.data.qvel[:] = 0.0
 
     def close(self):
@@ -200,7 +211,10 @@ class MujocoEnv(BaseEnv):
         #     f"lookat: {self.sim.viewer.cam.lookat.tolist()}")
 
     def get_current_qpos(self):
-        return np.array(self.curr_qpos)
+        return np.array(self.sim.data.qpos[self.sim_joint_idxs][self.ctrl_joint_idxs])
+
+    def get_current_qvel(self):
+        return np.array(self.sim.data.qvel[self.sim_joint_idxs][self.ctrl_joint_idxs])
 
 if __name__ == '__main__':
     from configs import BaseConfig

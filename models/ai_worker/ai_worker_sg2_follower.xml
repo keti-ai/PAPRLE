@@ -1,0 +1,652 @@
+<mujoco model="ffw_sg2_follower">
+  <compiler angle="radian" meshdir="../"/>
+  <asset>
+    <mesh name="base_mobile_assy" file="assets/ai_worker/ffw_sg2_rev1_follower/base_mobile_assy.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="lift_link" file="assets/ai_worker/ffw_sg2_rev1_follower/lift_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="body_arm_assy" file="assets/ai_worker/common/follower/body_arm_assy.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="head_link1" file="assets/ai_worker/common/follower/head_link1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="head_link2" file="assets/ai_worker/common/follower/head_link2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link1" file="assets/ai_worker/common/follower/arm_l_link1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link2" file="assets/ai_worker/common/follower/arm_l_link2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link3" file="assets/ai_worker/common/follower/arm_l_link3.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link4" file="assets/ai_worker/common/follower/arm_l_link4.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link5" file="assets/ai_worker/common/follower/arm_l_link5.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link6" file="assets/ai_worker/common/follower/arm_l_link6.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_l_link7" file="assets/ai_worker/common/follower/arm_l_link7.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link1" file="assets/ai_worker/common/follower/arm_r_link1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link2" file="assets/ai_worker/common/follower/arm_r_link2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link3" file="assets/ai_worker/common/follower/arm_r_link3.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link4" file="assets/ai_worker/common/follower/arm_r_link4.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link5" file="assets/ai_worker/common/follower/arm_r_link5.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link6" file="assets/ai_worker/common/follower/arm_r_link6.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="arm_r_link7" file="assets/ai_worker/common/follower/arm_r_link7.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rh_p12_rn_base" file="assets/robotis_hand_rh-p12-rn/rh_p12_rn_base.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rh_p12_rn_r1" file="assets/robotis_hand_rh-p12-rn/rh_p12_rn_r1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rh_p12_rn_r2" file="assets/robotis_hand_rh-p12-rn/rh_p12_rn_r2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rh_p12_rn_l1" file="assets/robotis_hand_rh-p12-rn/rh_p12_rn_l1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rh_p12_rn_l2" file="assets/robotis_hand_rh-p12-rn/rh_p12_rn_l2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="left_wheel_steer_link" file="assets/ai_worker/ffw_sg2_rev1_follower/left_wheel_steer_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="left_wheel_drive_link" file="assets/ai_worker/ffw_sg2_rev1_follower/left_wheel_drive_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="right_wheel_steer_link" file="assets/ai_worker/ffw_sg2_rev1_follower/right_wheel_steer_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="right_wheel_drive_link" file="assets/ai_worker/ffw_sg2_rev1_follower/right_wheel_drive_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rear_wheel_steer_link" file="assets/ai_worker/ffw_sg2_rev1_follower/rear_wheel_steer_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="rear_wheel_drive_link" file="assets/ai_worker/ffw_sg2_rev1_follower/rear_wheel_drive_link.stl" scale="0.001 0.001 0.001"/>
+  </asset>
+  <contact>
+    <exclude body1="arm_base_link" body2="arm_l_link1"/>
+    <exclude body1="arm_base_link" body2="arm_l_link2"/>
+    <exclude body1="arm_base_link" body2="arm_l_link3"/>
+    <exclude body1="arm_base_link" body2="arm_r_link1"/>
+    <exclude body1="arm_base_link" body2="arm_r_link2"/>
+    <exclude body1="arm_base_link" body2="arm_r_link3"/>
+    <exclude body1="arm_base_link" body2="base_link"/>
+    <exclude body1="arm_base_link" body2="head_link1"/>
+    <exclude body1="arm_base_link" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_base_link" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_base_link" body2="lift_link"/>
+    <exclude body1="arm_base_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_base_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_base_link" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_base_link" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link1" body2="arm_l_link2"/>
+    <exclude body1="arm_l_link1" body2="arm_l_link3"/>
+    <exclude body1="arm_l_link1" body2="arm_l_link4"/>
+    <exclude body1="arm_l_link1" body2="arm_l_link5"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link1"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link4"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link5"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link6"/>
+    <exclude body1="arm_l_link1" body2="arm_r_link7"/>
+    <exclude body1="arm_l_link1" body2="base_link"/>
+    <exclude body1="arm_l_link1" body2="camera_r_link"/>
+    <exclude body1="arm_l_link1" body2="head_link1"/>
+    <exclude body1="arm_l_link1" body2="head_link2"/>
+    <exclude body1="arm_l_link1" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link1" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link1" body2="lift_link"/>
+    <exclude body1="arm_l_link1" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link1" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link1" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link1" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link2" body2="arm_l_link3"/>
+    <exclude body1="arm_l_link2" body2="arm_l_link4"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link1"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link4"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link5"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link6"/>
+    <exclude body1="arm_l_link2" body2="arm_r_link7"/>
+    <exclude body1="arm_l_link2" body2="base_link"/>
+    <exclude body1="arm_l_link2" body2="camera_r_link"/>
+    <exclude body1="arm_l_link2" body2="head_link1"/>
+    <exclude body1="arm_l_link2" body2="head_link2"/>
+    <exclude body1="arm_l_link2" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link2" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link2" body2="lift_link"/>
+    <exclude body1="arm_l_link2" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link2" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link2" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link2" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link3" body2="arm_l_link4"/>
+    <exclude body1="arm_l_link3" body2="arm_l_link5"/>
+    <exclude body1="arm_l_link3" body2="arm_l_link6"/>
+    <exclude body1="arm_l_link3" body2="arm_l_link7"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link1"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link4"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link5"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link6"/>
+    <exclude body1="arm_l_link3" body2="arm_r_link7"/>
+    <exclude body1="arm_l_link3" body2="base_link"/>
+    <exclude body1="arm_l_link3" body2="camera_l_link"/>
+    <exclude body1="arm_l_link3" body2="camera_r_link"/>
+    <exclude body1="arm_l_link3" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="arm_l_link3" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="arm_l_link3" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="arm_l_link3" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="arm_l_link3" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="arm_l_link3" body2="head_link1"/>
+    <exclude body1="arm_l_link3" body2="head_link2"/>
+    <exclude body1="arm_l_link3" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link3" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link3" body2="lift_link"/>
+    <exclude body1="arm_l_link3" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link3" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link3" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link3" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link4" body2="arm_l_link5"/>
+    <exclude body1="arm_l_link4" body2="arm_l_link6"/>
+    <exclude body1="arm_l_link4" body2="arm_l_link7"/>
+    <exclude body1="arm_l_link4" body2="arm_r_link1"/>
+    <exclude body1="arm_l_link4" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link4" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link4" body2="arm_r_link4"/>
+    <exclude body1="arm_l_link4" body2="arm_r_link5"/>
+    <exclude body1="arm_l_link4" body2="arm_r_link6"/>
+    <exclude body1="arm_l_link4" body2="camera_l_link"/>
+    <exclude body1="arm_l_link4" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="arm_l_link4" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="arm_l_link4" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="arm_l_link4" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="arm_l_link4" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="arm_l_link4" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="arm_l_link4" body2="head_link1"/>
+    <exclude body1="arm_l_link4" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link4" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link4" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link4" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link4" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link4" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link5" body2="arm_l_link6"/>
+    <exclude body1="arm_l_link5" body2="arm_l_link7"/>
+    <exclude body1="arm_l_link5" body2="arm_r_link1"/>
+    <exclude body1="arm_l_link5" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link5" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link5" body2="arm_r_link4"/>
+    <exclude body1="arm_l_link5" body2="camera_l_link"/>
+    <exclude body1="arm_l_link5" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="arm_l_link5" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="arm_l_link5" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="arm_l_link5" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="arm_l_link5" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="arm_l_link5" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link5" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link5" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link5" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link5" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link5" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link6" body2="arm_l_link7"/>
+    <exclude body1="arm_l_link6" body2="arm_r_link1"/>
+    <exclude body1="arm_l_link6" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link6" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link6" body2="camera_l_link"/>
+    <exclude body1="arm_l_link6" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="arm_l_link6" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="arm_l_link6" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="arm_l_link6" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="arm_l_link6" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="arm_l_link6" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link6" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link6" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link6" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link6" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link6" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_l_link7" body2="arm_r_link2"/>
+    <exclude body1="arm_l_link7" body2="arm_r_link3"/>
+    <exclude body1="arm_l_link7" body2="camera_l_link"/>
+    <exclude body1="arm_l_link7" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="arm_l_link7" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="arm_l_link7" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="arm_l_link7" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="arm_l_link7" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="arm_l_link7" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_l_link7" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_l_link7" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_l_link7" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_l_link7" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_l_link7" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link1" body2="arm_r_link2"/>
+    <exclude body1="arm_r_link1" body2="arm_r_link3"/>
+    <exclude body1="arm_r_link1" body2="arm_r_link4"/>
+    <exclude body1="arm_r_link1" body2="base_link"/>
+    <exclude body1="arm_r_link1" body2="head_link1"/>
+    <exclude body1="arm_r_link1" body2="head_link2"/>
+    <exclude body1="arm_r_link1" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link1" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link1" body2="lift_link"/>
+    <exclude body1="arm_r_link1" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link1" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link1" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_r_link1" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link2" body2="arm_r_link3"/>
+    <exclude body1="arm_r_link2" body2="arm_r_link4"/>
+    <exclude body1="arm_r_link2" body2="base_link"/>
+    <exclude body1="arm_r_link2" body2="camera_l_link"/>
+    <exclude body1="arm_r_link2" body2="head_link1"/>
+    <exclude body1="arm_r_link2" body2="head_link2"/>
+    <exclude body1="arm_r_link2" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link2" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link2" body2="lift_link"/>
+    <exclude body1="arm_r_link2" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link2" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link2" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_r_link2" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link3" body2="arm_r_link4"/>
+    <exclude body1="arm_r_link3" body2="arm_r_link5"/>
+    <exclude body1="arm_r_link3" body2="arm_r_link6"/>
+    <exclude body1="arm_r_link3" body2="arm_r_link7"/>
+    <exclude body1="arm_r_link3" body2="base_link"/>
+    <exclude body1="arm_r_link3" body2="camera_l_link"/>
+    <exclude body1="arm_r_link3" body2="camera_r_link"/>
+    <exclude body1="arm_r_link3" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="arm_r_link3" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="arm_r_link3" body2="gripper_r_rh_p12_rn_base"/>
+    <exclude body1="arm_r_link3" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="arm_r_link3" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="arm_r_link3" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="arm_r_link3" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="arm_r_link3" body2="head_link1"/>
+    <exclude body1="arm_r_link3" body2="head_link2"/>
+    <exclude body1="arm_r_link3" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link3" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link3" body2="lift_link"/>
+    <exclude body1="arm_r_link3" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link3" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link3" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_r_link3" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link4" body2="arm_r_link5"/>
+    <exclude body1="arm_r_link4" body2="arm_r_link6"/>
+    <exclude body1="arm_r_link4" body2="arm_r_link7"/>
+    <exclude body1="arm_r_link4" body2="camera_r_link"/>
+    <exclude body1="arm_r_link4" body2="gripper_r_rh_p12_rn_base"/>
+    <exclude body1="arm_r_link4" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="arm_r_link4" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="arm_r_link4" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="arm_r_link4" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="arm_r_link4" body2="head_link1"/>
+    <exclude body1="arm_r_link4" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link4" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link4" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link4" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link4" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_r_link4" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link5" body2="arm_r_link6"/>
+    <exclude body1="arm_r_link5" body2="arm_r_link7"/>
+    <exclude body1="arm_r_link5" body2="camera_r_link"/>
+    <exclude body1="arm_r_link5" body2="gripper_r_rh_p12_rn_base"/>
+    <exclude body1="arm_r_link5" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="arm_r_link5" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="arm_r_link5" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="arm_r_link5" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="arm_r_link5" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link5" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link5" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link5" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link5" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_r_link5" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link6" body2="arm_r_link7"/>
+    <exclude body1="arm_r_link6" body2="camera_r_link"/>
+    <exclude body1="arm_r_link6" body2="gripper_r_rh_p12_rn_base"/>
+    <exclude body1="arm_r_link6" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="arm_r_link6" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="arm_r_link6" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="arm_r_link6" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="arm_r_link6" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link6" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link6" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link6" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link6" body2="right_wheel_drive_link"/>
+    <exclude body1="arm_r_link6" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_r_link7" body2="camera_r_link"/>
+    <exclude body1="arm_r_link7" body2="gripper_r_rh_p12_rn_base"/>
+    <exclude body1="arm_r_link7" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="arm_r_link7" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="arm_r_link7" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="arm_r_link7" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="arm_r_link7" body2="left_wheel_drive_link"/>
+    <exclude body1="arm_r_link7" body2="left_wheel_steer_link"/>
+    <exclude body1="arm_r_link7" body2="rear_wheel_drive_link"/>
+    <exclude body1="arm_r_link7" body2="rear_wheel_steer_link"/>
+    <exclude body1="arm_r_link7" body2="right_wheel_drive_link"/>
+    <exclude body1="base_link" body2="head_link1"/>
+    <exclude body1="base_link" body2="head_link2"/>
+    <exclude body1="base_link" body2="left_wheel_drive_link"/>
+    <exclude body1="base_link" body2="left_wheel_steer_link"/>
+    <exclude body1="base_link" body2="lift_link"/>
+    <exclude body1="base_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="base_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="base_link" body2="right_wheel_drive_link"/>
+    <exclude body1="base_link" body2="right_wheel_steer_link"/>
+    <exclude body1="camera_l_link" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="camera_l_link" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="camera_l_link" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="camera_l_link" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="camera_l_link" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="camera_l_link" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="camera_l_link" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="camera_l_link" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="camera_l_link" body2="left_wheel_drive_link"/>
+    <exclude body1="camera_l_link" body2="left_wheel_steer_link"/>
+    <exclude body1="camera_l_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="camera_l_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="camera_l_link" body2="right_wheel_drive_link"/>
+    <exclude body1="camera_l_link" body2="right_wheel_steer_link"/>
+    <exclude body1="camera_r_link" body2="gripper_l_rh_p12_rn_base"/>
+    <exclude body1="camera_r_link" body2="gripper_r_rh_p12_rn_base"/>
+    <exclude body1="camera_r_link" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="camera_r_link" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="camera_r_link" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="camera_r_link" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="camera_r_link" body2="left_wheel_drive_link"/>
+    <exclude body1="camera_r_link" body2="left_wheel_steer_link"/>
+    <exclude body1="camera_r_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="camera_r_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="camera_r_link" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="gripper_l_rh_p12_rn_l1"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_base" body2="right_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="gripper_l_rh_p12_rn_l2"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l1" body2="right_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="gripper_l_rh_p12_rn_r1"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_l2" body2="right_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r1" body2="gripper_l_rh_p12_rn_r2"/>
+    <exclude body1="gripper_l_rh_p12_rn_r1" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r1" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r1" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r1" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r1" body2="right_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r2" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="gripper_l_rh_p12_rn_r2" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r2" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r2" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r2" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_l_rh_p12_rn_r2" body2="right_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="gripper_r_rh_p12_rn_l1"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_base" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="gripper_r_rh_p12_rn_l2"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l1" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="gripper_r_rh_p12_rn_r1"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_l2" body2="right_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r1" body2="gripper_r_rh_p12_rn_r2"/>
+    <exclude body1="gripper_r_rh_p12_rn_r1" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r1" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r1" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r1" body2="rear_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r2" body2="left_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r2" body2="left_wheel_steer_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r2" body2="rear_wheel_drive_link"/>
+    <exclude body1="gripper_r_rh_p12_rn_r2" body2="rear_wheel_steer_link"/>
+    <exclude body1="head_link1" body2="head_link2"/>
+    <exclude body1="head_link1" body2="left_wheel_drive_link"/>
+    <exclude body1="head_link1" body2="left_wheel_steer_link"/>
+    <exclude body1="head_link1" body2="lift_link"/>
+    <exclude body1="head_link1" body2="rear_wheel_drive_link"/>
+    <exclude body1="head_link1" body2="rear_wheel_steer_link"/>
+    <exclude body1="head_link1" body2="right_wheel_drive_link"/>
+    <exclude body1="head_link1" body2="right_wheel_steer_link"/>
+    <exclude body1="head_link2" body2="left_wheel_drive_link"/>
+    <exclude body1="head_link2" body2="left_wheel_steer_link"/>
+    <exclude body1="head_link2" body2="lift_link"/>
+    <exclude body1="head_link2" body2="rear_wheel_drive_link"/>
+    <exclude body1="head_link2" body2="rear_wheel_steer_link"/>
+    <exclude body1="head_link2" body2="right_wheel_drive_link"/>
+    <exclude body1="head_link2" body2="right_wheel_steer_link"/>
+    <exclude body1="left_wheel_drive_link" body2="left_wheel_steer_link"/>
+    <exclude body1="left_wheel_drive_link" body2="lift_link"/>
+    <exclude body1="left_wheel_drive_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="left_wheel_drive_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="left_wheel_drive_link" body2="right_wheel_drive_link"/>
+    <exclude body1="left_wheel_drive_link" body2="right_wheel_steer_link"/>
+    <exclude body1="left_wheel_steer_link" body2="lift_link"/>
+    <exclude body1="left_wheel_steer_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="left_wheel_steer_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="left_wheel_steer_link" body2="right_wheel_drive_link"/>
+    <exclude body1="left_wheel_steer_link" body2="right_wheel_steer_link"/>
+    <exclude body1="lift_link" body2="rear_wheel_drive_link"/>
+    <exclude body1="lift_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="lift_link" body2="right_wheel_drive_link"/>
+    <exclude body1="lift_link" body2="right_wheel_steer_link"/>
+    <exclude body1="rear_wheel_drive_link" body2="rear_wheel_steer_link"/>
+    <exclude body1="rear_wheel_drive_link" body2="right_wheel_drive_link"/>
+    <exclude body1="rear_wheel_drive_link" body2="right_wheel_steer_link"/>
+    <exclude body1="rear_wheel_steer_link" body2="right_wheel_drive_link"/>
+    <exclude body1="rear_wheel_steer_link" body2="right_wheel_steer_link"/>
+    <exclude body1="right_wheel_drive_link" body2="right_wheel_steer_link"/>
+    <exclude body1="arm_base_link" body2="head_link2"/>
+  </contact>
+  <worldbody>
+    <body name="base_link">
+      <inertial pos="-0.045748 0.00658106 0.194318" quat="0.499993 0.500009 0.5 0.499999" mass="35.9894" diaginertia="39837.5 28461.4 17254.7"/>
+      <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="base_mobile_assy"/>
+      <body name="lift_link">
+        <inertial pos="-0.128699 -1.60458e-05 0.89456" quat="0.705504 -0.0424889 -0.0424548 0.706156" mass="17.9" diaginertia="10270.6 10241.3 50.6304"/>
+        <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="lift_link"/>
+      </body>
+      <body name="arm_base_link" pos="-0.0199 0 1.4316">
+        <inertial pos="-0.0149229 0.00273152 -0.0434253" quat="0.730117 0.682774 0.0194061 -0.0192877" mass="6.19396" diaginertia="0.108375 0.0796286 0.0542098"/>
+        <joint name="lift_joint" pos="0 0 0" axis="0 0 1" type="slide" range="-0.5 0" actuatorfrcrange="-1000 1000" damping="0.1"/>
+        <geom type="mesh" rgba="1 1 1 1" mesh="body_arm_assy"/>
+        <body name="head_link1" pos="0.0494878 0 0.102123">
+          <inertial pos="0.0253397 0 0.0477451" quat="0.507983 0.491933 0.49206 0.507773" mass="0.123518" diaginertia="0.0177151 0.0163207 0.00686142"/>
+          <joint name="head_joint1" pos="0 0 0" axis="0 1 0" range="-0.2317 0.6951" actuatorfrcrange="-1000 1000" damping="0.1"/>
+          <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="head_link1"/>
+          <body name="head_link2" pos="0.0365694 0 0.0563797">
+            <inertial pos="0.00305256 0.00118048 -0.0159328" quat="0.519427 0.499754 -0.500511 0.47951" mass="0.325421" diaginertia="0.00134009 0.000890252 0.000762966"/>
+            <joint name="head_joint2" pos="0 0 0" axis="0 0 1" range="-0.35 0.35" actuatorfrcrange="-1000 1000" damping="0.1"/>
+            <geom type="mesh" rgba="1 1 1 1" mesh="head_link2"/>
+          </body>
+        </body>
+        <body name="arm_l_link1" pos="0 0.1045 0">
+          <inertial pos="0.0142104 0.115537 0.000112064" quat="-0.160859 0.694512 0.150136 0.685008" mass="2.00133" diaginertia="0.00336559 0.00296956 0.00240308"/>
+          <joint name="arm_l_joint1" pos="0 0 0" axis="0 1 0" range="-3.14 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+          <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link1"/>
+          <body name="arm_l_link2" pos="0 0.123 0">
+            <inertial pos="0.00910984 -0.000105302 -0.143864" quat="0.69312 0.108188 0.106056 0.704721" mass="2.12826" diaginertia="0.0108884 0.0107203 0.00242441"/>
+            <joint name="arm_l_joint2" pos="0 0 0" axis="1 0 0" range="0 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+            <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link2"/>
+            <body name="arm_l_link3" pos="0 0 -0.165">
+              <inertial pos="0.0298754 0.0139139 -0.121014" quat="0.920594 0.210171 -0.32088 0.0732839" mass="1.68476" diaginertia="0.0034081 0.00290979 0.00183363"/>
+              <joint name="arm_l_joint3" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+              <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link3"/>
+              <body name="arm_l_link4" pos="0.041004 0 -0.135">
+                <inertial pos="-0.0385387 0.00980723 -0.131312" quat="0.914598 -0.188452 -0.011215 -0.35759" mass="1.50821" diaginertia="0.00633449 0.00629266 0.00142827"/>
+                <joint name="arm_l_joint4" pos="0 0 0" axis="0 1 0" range="-2.9361 1.0786" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link4"/>
+                <body name="arm_l_link5" pos="-0.041004 0 -0.1489">
+                  <inertial pos="-3.12262e-05 0.0168192 -0.0987382" quat="0.799979 0.600024 -0.000384238 0.00208778" mass="1.39178" diaginertia="0.00188568 0.00172688 0.00124772"/>
+                  <joint name="arm_l_joint5" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                  <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link5"/>
+                  <body name="arm_l_link6" pos="0 0 -0.1041">
+                    <inertial pos="0.00224389 0.0187641 -0.0648056" quat="0.64976 -0.267048 0.236003 0.671417" mass="0.657707" diaginertia="0.00161927 0.00141848 0.000538247"/>
+                    <joint name="arm_l_joint6" pos="0 0 0" axis="0 1 0" range="-1.57 1.57" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                    <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link6"/>
+                    <body name="arm_l_link7" pos="0 0 -0.0885">
+                      <inertial pos="0.0255066 0 -0.0553953" quat="0.491136 0.50871 0.50871 0.491136" mass="0.166856" diaginertia="0.000452453 0.000416075 0.0001032"/>
+                      <joint name="arm_l_joint7" pos="0 0 0" axis="1 0 0" range="-1.8201 1.5804" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                      <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_l_link7"/>
+                      <body name="camera_l_bottom_screw_frame" pos="0.108236 -0.021 -0.062552" quat="0.475435 -0.475435 0.523413 0.523413">
+                        <body name="camera_l_link" pos="0.01085 0.009 0.021">
+                          <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.072" diaginertia="0.00388124 0.00387926 0.00049894"/>
+                          <geom size="0.0115 0.021 0.021" pos="-0.0078 -0.009 0" type="box"/>
+                        </body>
+                      </body>
+                      <body name="gripper_l_rh_p12_rn_base" pos="0 0 -0.078" quat="0 -1 0 0">
+                        <inertial pos="0 0 0.032" mass="0.236" diaginertia="1e-06 1e-06 1e-06"/>
+                        <geom type="mesh" mesh="rh_p12_rn_base"/>
+                        <body name="gripper_l_rh_p12_rn_r1" pos="0 0.008 0.048">
+                          <inertial pos="0 0.034 0.004" mass="0.068" diaginertia="1e-06 1e-06 1e-06"/>
+                          <joint name="gripper_l_joint1" pos="0 0 0" axis="1 0 0" range="0 1.1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                          <geom type="mesh" mesh="rh_p12_rn_r1"/>
+                          <body name="gripper_l_rh_p12_rn_r2" pos="0 0.0493634 0.0285">
+                            <inertial pos="0 0.006 0.011" mass="0.022" diaginertia="1e-06 1e-06 1e-06"/>
+                            <joint name="gripper_l_joint2" pos="0 0 0" axis="-1 0 0" range="0 1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                            <geom type="mesh" mesh="rh_p12_rn_r2"/>
+                          </body>
+                        </body>
+                        <body name="gripper_l_rh_p12_rn_l1" pos="0 -0.008 0.048">
+                          <inertial pos="0 -0.034 0.004" mass="0.068" diaginertia="1e-06 1e-06 1e-06"/>
+                          <joint name="gripper_l_joint3" pos="0 0 0" axis="-1 0 0" range="0 1.1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                          <geom type="mesh" mesh="rh_p12_rn_l1"/>
+                          <body name="gripper_l_rh_p12_rn_l2" pos="0 -0.0493634 0.0285">
+                            <inertial pos="0 -0.006 0.011" mass="0.022" diaginertia="1e-06 1e-06 1e-06"/>
+                            <joint name="gripper_l_joint4" pos="0 0 0" axis="1 0 0" range="0 1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                            <geom type="mesh" mesh="rh_p12_rn_l2"/>
+                          </body>
+                        </body>
+                        <body name="eef_l" pos="0 0 0.135" quat="0 0.707107 0 0.707107">
+                          <inertial pos="0 0 0" mass="0.001" diaginertia="1 1 1"/>
+                        </body>
+                        <body name="wrist_l" pos="0 0 0.0" quat="0 0.707107 0 0.707107">
+                          <inertial pos="0 0 0" mass="0.001" diaginertia="1 1 1"/>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+        <body name="arm_r_link1" pos="0 -0.1045 0">
+          <inertial pos="0.0142104 -0.115537 -0.000112064" quat="0.150136 0.685008 -0.160859 0.694512" mass="2.00133" diaginertia="0.00336559 0.00296956 0.00240308"/>
+          <joint name="arm_r_joint1" pos="0 0 0" axis="0 1 0" range="-3.14 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+          <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link1"/>
+          <body name="arm_r_link2" pos="0 -0.123 0">
+            <inertial pos="0.00910984 -0.000105302 -0.143864" quat="0.69312 0.108188 0.106056 0.704721" mass="2.12826" diaginertia="0.0108884 0.0107203 0.00242441"/>
+            <joint name="arm_r_joint2" pos="0 0 0" axis="1 0 0" range="-3.14 0" actuatorfrcrange="-1000 1000" damping="0.1"/>
+            <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link2"/>
+            <body name="arm_r_link3" pos="0 0 -0.165">
+              <inertial pos="0.0298458 -0.013923 -0.121044" quat="0.920921 -0.210644 -0.320271 -0.0704282" mass="1.68476" diaginertia="0.00340682 0.00290928 0.00183278"/>
+              <joint name="arm_r_joint3" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+              <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link3"/>
+              <body name="arm_r_link4" pos="0.041004 0 -0.135">
+                <inertial pos="-0.0386775 -0.00930801 -0.132297" quat="0.896276 0.184195 -0.0197201 0.402956" mass="1.49425" diaginertia="0.00611519 0.00607254 0.00141405"/>
+                <joint name="arm_r_joint4" pos="0 0 0" axis="0 1 0" range="-2.9361 1.0786" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link4"/>
+                <body name="arm_r_link5" pos="-0.041004 0 -0.1489">
+                  <inertial pos="0.000838769 -0.0167985 -0.0987382" quat="0.599551 0.799786 0.0249451 0.0160843" mass="1.39178" diaginertia="0.00188453 0.00172697 0.00124878"/>
+                  <joint name="arm_r_joint5" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                  <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link5"/>
+                  <body name="arm_r_link6" pos="0 0 -0.1041">
+                    <inertial pos="0.00326749 -0.0186126 -0.0647926" quat="0.653466 0.243284 -0.260528 0.667773" mass="0.657707" diaginertia="0.00161885 0.00141804 0.000538212"/>
+                    <joint name="arm_r_joint6" pos="0 0 0" axis="0 1 0" range="-1.57 1.57" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                    <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link6"/>
+                    <body name="arm_r_link7" pos="0 0 -0.0885">
+                      <inertial pos="0.0254684 0.001396 -0.0553953" quat="0.477506 0.494593 0.522446 0.504397" mass="0.166856" diaginertia="0.000452453 0.000416075 0.0001032"/>
+                      <joint name="arm_r_joint7" pos="0 0 0" axis="1 0 0" range="-1.5804 1.8201" actuatorfrcrange="-1000 1000" damping="0.1"/>
+                      <geom type="mesh" rgba="0.2 0.2 0.2 1" mesh="arm_r_link7"/>
+                      <body name="camera_r_bottom_screw_frame" pos="0.108236 -0.021 -0.062552" quat="0.475435 -0.475435 0.523413 0.523413">
+                        <body name="camera_r_link" pos="0.01085 0.009 0.021">
+                          <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.072" diaginertia="0.00388124 0.00387926 0.00049894"/>
+                          <geom size="0.0115 0.021 0.021" pos="-0.0078 -0.009 0" type="box"/>
+                        </body>
+                      </body>
+                      <body name="gripper_r_rh_p12_rn_base" pos="0 0 -0.078" quat="0 -1 0 0">
+                        <inertial pos="0 0 0.032" mass="0.236" diaginertia="1e-06 1e-06 1e-06"/>
+                        <geom type="mesh" mesh="rh_p12_rn_base"/>
+                        <body name="gripper_r_rh_p12_rn_r1" pos="0 0.008 0.048">
+                          <inertial pos="0 0.034 0.004" mass="0.068" diaginertia="1e-06 1e-06 1e-06"/>
+                          <joint name="gripper_r_joint1" pos="0 0 0" axis="1 0 0" range="0 1.1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                          <geom type="mesh" mesh="rh_p12_rn_r1"/>
+                          <body name="gripper_r_rh_p12_rn_r2" pos="0 0.0493634 0.0285">
+                            <inertial pos="0 0.006 0.011" mass="0.022" diaginertia="1e-06 1e-06 1e-06"/>
+                            <joint name="gripper_r_joint2" pos="0 0 0" axis="-1 0 0" range="0 1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                            <geom type="mesh" mesh="rh_p12_rn_r2"/>
+                          </body>
+                        </body>
+                        <body name="gripper_r_rh_p12_rn_l1" pos="0 -0.008 0.048">
+                          <inertial pos="0 -0.034 0.004" mass="0.068" diaginertia="1e-06 1e-06 1e-06"/>
+                          <joint name="gripper_r_joint3" pos="0 0 0" axis="-1 0 0" range="0 1.1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                          <geom type="mesh" mesh="rh_p12_rn_l1"/>
+                          <body name="gripper_r_rh_p12_rn_l2" pos="0 -0.0493634 0.0285">
+                            <inertial pos="0 -0.006 0.011" mass="0.022" diaginertia="1e-06 1e-06 1e-06"/>
+                            <joint name="gripper_r_joint4" pos="0 0 0" axis="1 0 0" range="0 1" actuatorfrcrange="-1000 1000" damping="0.7"/>
+                            <geom type="mesh" mesh="rh_p12_rn_l2"/>
+                          </body>
+                        </body>
+                        <body name="eef_r" pos="0 0 0.135" quat="0 0.707107 0 0.707107">
+                          <inertial pos="0 0 0" mass="0.001" diaginertia="1 1 1"/>
+                        </body>
+                        <body name="wrist_r" pos="0 0 0.0" quat="0 0.707107 0 0.707107">
+                          <inertial pos="0 0 0" mass="0.001" diaginertia="1 1 1"/>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="left_wheel_steer_link" pos="0.1371 0.2554 0.27555">
+        <inertial pos="0.00980277 -0.0547124 -0.137653" quat="0.705239 0.00684932 0.109571 0.700418" mass="0.755095" diaginertia="0.00362424 0.00283022 0.00160873"/>
+        <joint name="left_wheel_steer" pos="0 0 0" axis="0 0 1" range="-18.8496 18.8496" actuatorfrcrange="-1 1"/>
+        <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="left_wheel_steer_link"/>
+        <body name="left_wheel_drive_link" pos="0 0 -0.18905">
+          <inertial pos="0 -0.0014996 0" quat="0.5 0.5 0.5 0.5" mass="3.79546" diaginertia="0.011564 0.00718798 0.00718788"/>
+          <joint name="left_wheel_drive" pos="0 0 0" axis="0 1 0" range="-18.8496 18.8496" actuatorfrcrange="-1 1"/>
+          <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="left_wheel_drive_link"/>
+        </body>
+      </body>
+      <body name="right_wheel_steer_link" pos="0.1371 -0.2554 0.27555">
+        <inertial pos="0.00980273 0.0547124 -0.137653" quat="0.700418 0.10957 0.00684873 0.705239" mass="0.755095" diaginertia="0.00362424 0.00283021 0.00160873"/>
+        <joint name="right_wheel_steer" pos="0 0 0" axis="0 0 1" range="-18.8496 18.8496" actuatorfrcrange="-1 1"/>
+        <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="right_wheel_steer_link"/>
+        <body name="right_wheel_drive_link" pos="0 0 -0.18905">
+          <inertial pos="0 0.0014996 0" quat="0.5 0.5 0.5 0.5" mass="3.79546" diaginertia="0.011564 0.00718798 0.00718788"/>
+          <joint name="right_wheel_drive" pos="0 0 0" axis="0 1 0" range="-18.8496 18.8496" actuatorfrcrange="-1 1"/>
+          <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="right_wheel_drive_link"/>
+        </body>
+      </body>
+      <body name="rear_wheel_steer_link" pos="-0.2899 0 0.27555">
+        <inertial pos="0.00980273 0.0547124 -0.137653" quat="0.700418 0.10957 0.00684873 0.705239" mass="0.755095" diaginertia="0.00362424 0.00283021 0.00160873"/>
+        <joint name="rear_wheel_steer" pos="0 0 0" axis="0 0 1" range="-18.8496 18.8496" actuatorfrcrange="-1 1"/>
+        <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="rear_wheel_steer_link"/>
+        <body name="rear_wheel_drive_link" pos="0 0 -0.18905">
+          <inertial pos="0 0.0014996 0" quat="0.5 0.5 0.5 0.5" mass="3.79546" diaginertia="0.011564 0.00718798 0.00718788"/>
+          <joint name="rear_wheel_drive" pos="0 0 0" axis="0 1 0" range="-18.8496 18.8496" actuatorfrcrange="-1 1"/>
+          <geom type="mesh" rgba="0.75 0.75 0.75 1" mesh="rear_wheel_drive_link"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <statistic center="1.0 0.7 1.0" extent="0.8"/>
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.1 0.1 0.1" specular="0.9 0.9 0.9"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="-140" elevation="-20"/>
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+  <worldbody>
+    <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane" pos="0 0 -0.05"/>
+  </worldbody>
+</mujoco>

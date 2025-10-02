@@ -18,7 +18,7 @@
     <mesh name="camera_mount_simple" file="assets/papras/camera_mount_simple.stl"/>
   </asset>
   <worldbody>
-    <body name="robot1/link1">
+    <body name="robot1/link1" pos="0 0 0.0">
       <inertial pos="0.00023 0 0.06223" quat="0.999978 0 -0.00662802 0" mass="0.85644" diaginertia="0.00121079 0.00120886 0.000380884"/>
       <geom type="mesh" mesh="link1"/>
       <body name="robot1/link2" pos="0 0 0.126">
@@ -49,8 +49,7 @@
                     <inertial pos="0.00337 0 0" mass="0.01919" diaginertia="1 1 1"/>
                     <joint name="robot1/joint7" pos="0 0 0" axis="1 0 0" range="-3.14159 3.14159" actuatorfrcrange="-100 100" damping="0.7"/>
                     <geom type="mesh" mesh="end_link"/>
-                    <body name="robot1/wrist_link" pos="0.006 0 0.00" quat="0 0.707107 0 0.707107">
-                    </body>                
+                    <body name="robot1/wrist_link" pos="0.006 0 0.00"  quat="0.707388 0.706825 0 0"/>
                     <body name="robot1/gripper_main_link" pos="0.006 0 0" quat="0 0.707107 0 0.707107">
                       <inertial pos="0 0 0.032" mass="0.236" diaginertia="1 1 1"/>
                       <geom type="mesh" mesh="rh_p12_rn_base"/>

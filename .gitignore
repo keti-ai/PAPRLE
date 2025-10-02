@@ -9,3 +9,15 @@ __pycache__/
 
 data/
 demo_data/
+demo_data
+
+MUJOCO_LOG.TXT
+
+scripts/rosbags/
+scripts/rosbag_csv/
+
+
+*.mp4
+
+*.pkl
+demo_data

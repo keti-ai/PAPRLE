@@ -23,10 +23,10 @@ robot_cfg:
            -0.384, -1.057, 0.0, 0.485, 0.0, 1.125, 0.0, 0.0]
   viewer_args:
     mujoco:
-      azimuth: 172.7000000000001
-      distance: 2.6093796441399872
+      azimuth: -76.82499999999993
+      distance: 1.9570634147271553
       elevation: -28.550000000000004
-      lookat: [-0.21228273,  0.03259374, -0.11615278]
+      lookat: [ 0.2736899 ,  0.05083822, -0.09184379]
     isaacgym:
       cam_pos: [1.41, -0.36, 0.58]
       cam_target: [0.45, -0.23, 0.31]
@@ -44,7 +44,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot3/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot3/link1 # base_link in the original urdf file,not the base_link in the ik model
 
   robot4:
     joint_names: ['robot1/joint1', 'robot1/joint2', 'robot1/joint3', 'robot1/joint4', 'robot1/joint5', 'robot1/joint6', 'robot1/joint7']
@@ -54,7 +54,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot4/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot4/link1 # base_link in the original urdf file,not the base_link in the ik model
 
 ros1_cfg:
   lp_filter_alpha: 0.9
@@ -100,7 +100,7 @@ ros2_cfg:
     hand_group_name: 'gripper34'
     num_planning_attempts: 30
     planning_time: 20.0
-    max_velocity_scaling_factor: 0.1
+    max_velocity_scaling_factor: 0.2
     max_acceleration_scaling_factor: 0.1
     use_move_group_action: True
   state_sub_topic: '/joint_states' # Topic to subscribe for joint states
@@ -124,4 +124,23 @@ ros2_cfg:
       hand_state_sub_topic: ${...state_sub_topic}
       arm_state_sub_msg_type: ${...state_sub_msg_type}
       hand_state_sub_msg_type: ${...state_sub_msg_type}
-  cameras: []
+camera_cfg:
+  top: 
+    serial_number: 238722071363 #233522070873
+    rgb_resolution: [424, 240]
+    depth_resolution: [480, 270]
+    get_aligned: true
+    depth_units: 0.0001
+  left:
+    serial_number: 233522070873  
+    rgb_resolution: [424, 240]
+    depth_resolution: [480,270]
+    get_aligned: false
+    depth_units: 0.0001
+  right:
+    serial_number: 049222073036
+    rgb_resolution: [424, 240]
+    depth_resolution: [480,270]
+    get_aligned: false
+    depth_units: 0.0001
+

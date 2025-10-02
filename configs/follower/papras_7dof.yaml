@@ -36,15 +36,15 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/PAPRAS/papras_7dof/papras_7dof.urdf'
     ik_damping: 0.05
     eps: 1e-2
-    base_link: robot1/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot1/link1 # base_link in the ik model
 
 ros2_cfg:
   lp_filter_alpha: 0.9
   motion_planning: 'moveit' # moveit or interpolation
   moveit:
     namespace: ''
-    arm_group_name: 'arm'
-    hand_group_name: 'gripper'
+    arm_group_name: 'arm1'
+    hand_group_name: 'gripper1'
     num_planning_attempts: 30
     planning_time: 20.0
     max_velocity_scaling_factor: 0.1
@@ -62,10 +62,16 @@ ros2_cfg:
       hand_state_sub_topic: ${...state_sub_topic}
       arm_state_sub_msg_type: ${...state_sub_msg_type}
       hand_state_sub_msg_type: ${...state_sub_msg_type}
-camera_cfg:
-  top:
-    serial_number: '238222073320'
-    rgb_resolution: [848, 480]
-    depth_resolution: [848, 480]
-    get_aligned: true
-    depth_units: 0.0001
+camera_cfg: null
+#  right:
+#    serial_number: '049222073036'
+#    rgb_resolution: [848, 480]
+#    depth_resolution: [848, 480]
+#    get_aligned: false
+#    depth_units: 0.0001
+#  top:
+#    serial_number: 'f1380471'
+#    rgb_resolution: [960,540 ]
+#    depth_resolution: [640, 480 ]
+#    get_aligned: true
+#    depth_units: 0.000025

@@ -1,0 +1,166 @@
+mesh_dir: models/
+robot_cfg:
+  name: ffw_sg2_follower
+  asset_cfg:
+    asset_dir: ${mesh_dir}
+    urdf_path: models/ai_worker/ai_worker_sg2_follower.urdf
+    xml_path: models/ai_worker/ai_worker_sg2_follower.xml
+  ignore_collision_pairs: []
+  control_dt: 0.02
+  eef_type: parallel_gripper
+  limb_joint_names:
+    left:
+    - arm_l_joint1
+    - arm_l_joint2
+    - arm_l_joint3
+    - arm_l_joint4
+    - arm_l_joint5
+    - arm_l_joint6
+    - arm_l_joint7
+    right:
+    - arm_r_joint1
+    - arm_r_joint2
+    - arm_r_joint3
+    - arm_r_joint4
+    - arm_r_joint5
+    - arm_r_joint6
+    - arm_r_joint7
+    # - lift_joint
+  hand_joint_names:
+    left:
+    - gripper_l_joint1
+    right:
+    - gripper_r_joint1
+  max_joint_vel: 2.0
+  end_effector_link:
+    left: wrist_l # eef_l
+    right: wrist_r # eef_r
+  init_qpos:
+  - 0.0     # arm_l_joint1
+  - 0.0     # arm_l_joint2
+  - 0.0     # arm_l_joint3
+  - -1.57     # arm_l_joint4
+  - 0.0     # arm_l_joint5
+  - 0.0     # arm_l_joint6
+  - 0.0     # arm_l_joint7
+  - 0.0     # gripper_l_joint1
+  - 0.0     # arm_r_joint1
+  - 0.0     # arm_r_joint2
+  - 0.0     # arm_r_joint3
+  - -1.57     # arm_r_joint4
+  - 0.0     # arm_r_joint5
+  - 0.0     # arm_r_joint6
+  - 0.0     # arm_r_joint7
+  - 0.0     # gripper_r_joint1
+  # - 0.0     # lift_joint
+  viewer_args:
+    mujoco:
+      azimuth: 175.17500000000004
+      distance: 2.1971833807397014
+      elevation: -21.34999999999999
+      lookat: [-0.20729741250580402, 0.07151022731756346, 0.9457543297025409]
+    isaacgym:
+      cam_pos:
+      - 1.41
+      - -0.36
+      - 0.58
+      cam_target:
+      - 0.45
+      - -0.23
+      - 0.31
+    trimesh:
+      pq:
+      - 1.6723996641513676
+      - -0.7507286806222732
+      - 0.8682281906897257
+      - 0.687230565118163
+      - 0.4897546511147104
+      - 0.2564309495761239
+      - 0.4712724267113097
+  hand_limits:
+    left: [[0.0, 1.1]]
+    right: [[0.0, 1.1]]
+ik_cfg:
+  left:
+    urdf_path: models/ai_worker/ai_worker_sg2_follower.urdf
+    joint_names:
+    - arm_l_joint1
+    - arm_l_joint2
+    - arm_l_joint3
+    - arm_l_joint4
+    - arm_l_joint5
+    - arm_l_joint6
+    - arm_l_joint7
+    ee_link: wrist_l
+    attached_to: world
+    dt: 0.05
+    asset_dir: ${mesh_dir}
+    ik_damping: 0.075
+    eps: 0.001
+  right:
+    urdf_path: models/ai_worker/ai_worker_sg2_follower.urdf
+    joint_names:
+    - arm_r_joint1
+    - arm_r_joint2
+    - arm_r_joint3
+    - arm_r_joint4
+    - arm_r_joint5
+    - arm_r_joint6
+    - arm_r_joint7
+    # - lift_joint
+    ee_link: wrist_r
+    attached_to: world
+    dt: 0.05
+    asset_dir: ${mesh_dir}
+    ik_damping: 0.075
+    eps: 0.001
+ros1_cfg:
+  lp_filter_alpha: 0.9
+  motion_planning: moveit
+  moveit:
+    namespace: /followers
+    arm_group_name: ''
+    hand_group_name: ''
+    num_planning_attempts: 30
+    planning_time: 20.0
+    max_velocity_scaling_factor: 0.1
+    max_acceleration_scaling_factor: 0.1
+    use_move_group_action: true
+  state_sub_topic: /followers/joint_states
+  state_sub_msg_type: sensor_msgs/msg/JointState
+  robots: null
+  cameras: []
+ros2_cfg:
+  lp_filter_alpha: 0.8
+  motion_planning: moveit
+  moveit:
+    namespace: ''
+    arm_group_name: 'arm_l_r'
+    hand_group_name: ''
+    num_planning_attempts: 30
+    planning_time: 20.0
+    max_velocity_scaling_factor: 0.1
+    max_acceleration_scaling_factor: 0.1
+    use_move_group_action: true
+  state_sub_topic: /joint_states
+  state_sub_msg_type: sensor_msgs/msg/JointState
+  robots:
+    left:
+      arm_control_topic: 'arm_l_controller/joint_trajectory'
+      arm_control_msg_type: 'JointTrajectory'
+      hand_control_topic: 'arm_l_controller/joint_trajectory'
+      hand_control_msg_type: 'JointTrajectory'
+      arm_state_sub_topic: ${...state_sub_topic}
+      hand_state_sub_topic: ${...state_sub_topic}
+      arm_state_sub_msg_type: ${...state_sub_msg_type}
+      hand_state_sub_msg_type: ${...state_sub_msg_type}
+    right:
+      arm_control_topic: '/arm_r_controller/joint_trajectory'
+      arm_control_msg_type: 'JointTrajectory'
+      hand_control_topic: '/arm_r_controller/joint_trajectory'
+      hand_control_msg_type: 'JointTrajectory'
+      arm_state_sub_topic: ${...state_sub_topic}
+      hand_state_sub_topic: ${...state_sub_topic}
+      arm_state_sub_msg_type: ${...state_sub_msg_type}
+      hand_state_sub_msg_type: ${...state_sub_msg_type}
+camera_cfg: null

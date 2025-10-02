@@ -34,7 +34,7 @@ asset_cfg:
   urdf_path: 'models/leaders/papras_7dof_leader.urdf'
   xml_path: 'models/leaders/papras_7dof_leader.xml'
 
-direct_mapping_available_robots: ['papras_7dof']
+direct_mapping_available_robots: ['papras_7dof','papras_teleop_bag_single_arm']
 hand_limits: # for gripper range mapping
   robot1: [[-2.0, -1.0]] #[-0.39, 0.56]
 

@@ -72,6 +72,13 @@ def project_average_rotation(quat_list: np.ndarray):
     )
     return rotations.quaternion_from_matrix(final_mat, strict_check=False)
 
+def process_matrices(skeleton):
+    return np.concatenate([process_matrix(joint) for joint in skeleton], axis = 0)
+
+def get_pinch_distance(fingers):
+    thumb = fingers[4, :3, 3]
+    index = fingers[9, :3, 3]
+    return np.linalg.norm(thumb - index)
 
 class LPFilter:
     def __init__(self, alpha):
@@ -133,8 +140,11 @@ class CustomVisionProStreamer(VisionProStreamer):
             print("Replay loaded from", replay)
         else:
             self.replay = None
+        self.times = []
 
     def replay_stream(self):
+        for i in range(100):
+            self.replay.append(self.replay[-1])
         while not self.shutdown and self.replay is not None:
             for id, transformations in enumerate(self.replay):
                 if self.shutdown:
@@ -155,14 +165,14 @@ class CustomVisionProStreamer(VisionProStreamer):
                     responses = stub.StreamHandUpdates(request)
                     for response in responses:
                         a = time.time()
-                        left_joints = process_matrices(
+                        processed_left_joints = process_matrices(
                             response.left_hand.skeleton.jointMatrices
                         )
-                        right_joints = process_matrices(
+                        processed_right_joints = process_matrices(
                             response.right_hand.skeleton.jointMatrices
                         )
-                        left_joints = two_mat_batch_mul(left_joints, OPERATOR2AVP_LEFT.T)
-                        right_joints = two_mat_batch_mul(right_joints, OPERATOR2AVP_RIGHT.T)
+                        left_joints = two_mat_batch_mul(processed_left_joints, OPERATOR2AVP_LEFT.T)
+                        right_joints = two_mat_batch_mul(processed_right_joints, OPERATOR2AVP_RIGHT.T)
 
                         transformations = {
                             "left_wrist": three_mat_mul(
@@ -184,8 +194,8 @@ class CustomVisionProStreamer(VisionProStreamer):
                                     np.eye(3),
                                 )
                             ),
-                            "left_pinch_distance": get_pinch_distance(response.left_hand.skeleton.jointMatrices),
-                            "right_pinch_distance": get_pinch_distance(response.right_hand.skeleton.jointMatrices),
+                            "left_pinch_distance": get_pinch_distance(processed_left_joints),
+                            "right_pinch_distance": get_pinch_distance(processed_right_joints),
                             "timestamp": time.time(),
                         }
                         if self.record:
@@ -200,6 +210,12 @@ class CustomVisionProStreamer(VisionProStreamer):
                                 pickle.dump(self.recording, f)
                             self.recording = []
                             self.flag_save = False
+
+                        loop_time = time.time() - a
+                        left_time = max(1/250 - loop_time, 0.0)
+                        time.sleep(left_time)
+                        self.times.append(loop_time)
+                        #print("[VisionPro] Streaming at {:.2f} Hz".format(1.0 / (time.time() - a)), end="\r")
             except Exception as e:
                 pass
                 #print(f"An error occurred: {e}")
@@ -215,6 +231,8 @@ class VisionPro:
     def __init__(self, follower_robot, leader_config, env_config, render_mode='none', verbose=False, *args, **kwargs):
         self.follower_robot = follower_robot
         self.leader_config = leader_config
+        self.use_left_hand = 'left' in self.leader_config.limb_names
+        self.use_right_hand = 'right' in self.leader_config.limb_names
         self.env_config = env_config
         self.is_ready = False
         self.require_end = False
@@ -226,6 +244,7 @@ class VisionPro:
         self.right_pos_filter = LPFilter(0.4)
         self.left_rot_filter = LPRotationFilter(0.4)
         self.right_rot_filter = LPRotationFilter(0.4)
+        self.init_progress = 0.0
 
         self.streamer = CustomVisionProStreamer(leader_config.ip, record=leader_config.record, record_dir=leader_config.save_dir,
                                                 replay=leader_config.replay)
@@ -236,13 +255,143 @@ class VisionPro:
         self.streamer_thread.start()
 
         self.render_mode = render_mode
-        if render_mode == 'human':
-            self.viz_thread = Thread(target=self.__render_mujoco)
+        if render_mode:
+            self.viz_thread = Thread(target=self.__render_viser)
             self.viz_thread.start()
 
         self.leader_viz_info = {'color': 'blue',  'log': "VisionPro is ready!"}
         self.end_detection_thread = Thread(target=self.detect_end_signal)
         self.end_detection_thread.start()
+
+        self.first_output = False
+
+
+    def __render_viser(self):
+        import viser
+
+        self.server = viser.ViserServer()
+        def cb(client_handle):
+            client_handle.camera.position = np.array([0.18133284, 0.17819942, 1.48236676])
+            client_handle.camera.wxyz = np.array([0.0, 1.0, 0.0, 0.0])
+        self.server.on_client_connect(cb)
+        self.server.scene.add_grid("/ground", width=2, height=2)
+        empty = np.zeros(7)
+        empty[4] = 1.0
+        batched_wxyz = np.tile(np.array([1.0,0.0,0.0,0.0]), [50,1])
+        batched_positions = np.tile(np.array([0.0,0.0,0.0]), [50,1])
+
+        self.head_handle = self.server.scene.add_batched_axes(name='head_axes', batched_wxyzs=batched_wxyz[:1], batched_positions=batched_positions[:1], axes_length=0.07, axes_radius=0.007)
+        self.head_label = self.server.scene.add_label(name='head_label', text='Head', position=np.array([0,0,0]))
+        self.wrist_handle = self.server.scene.add_batched_axes(name='wrist_axes', batched_wxyzs=batched_wxyz[:2], batched_positions=batched_positions[:2], axes_length=0.05, axes_radius=0.005)
+        self.right_wrist_label = self.server.scene.add_label(name='right_wrist_label', text='Right Wrist', position=np.array([0,0,0]))
+        self.left_wrist_label = self.server.scene.add_label(name='left_wrist_label', text='Left Wrist', position=np.array([0,0,0]))
+        self.finger_handle = self.server.scene.add_batched_axes(name='finger_axes', batched_wxyzs=batched_wxyz, batched_positions=batched_positions, axes_length=0.01, axes_radius=0.002)
+        self.left_finger_lines, self.right_finger_lines = None, None
+        self.left_wrist_pos_handle = self.server.scene.add_icosphere(name='left_wrist_pos', radius=0.04, position=np.zeros(3), color=[1,0,0], opacity=0.7)
+        self.right_wrist_pos_handle = self.server.scene.add_icosphere(name='right_wrist_pos', radius=0.04, position=np.zeros(3), color=[1,0,0], opacity=0.7)
+
+        self.init_progress_label = self.server.scene.add_label(name='init_progress', text='Init Progress: N/A', position=np.array([0,0,0.0]))
+        self.last_updated_time_label = self.server.scene.add_label(name='last_updated_time', text='Last Update: N/A', position=np.array([0,0.1,0.0]))
+
+        while not self.shutdown:
+            if self.streamer.latest is None or not self.streamer.stream_running:
+                time.sleep(0.01)
+                continue
+
+            self.init_progress_label.text = f'Init Progress: {self.init_progress*100:.1f}%'
+            self.last_updated_time_label.text = f'Last Update: {time.time() - self.streamer.latest["timestamp"]:.2f} s ago'
+
+            transform = copy.deepcopy(self.streamer.latest)
+            head_pq = pt.pq_from_transform(transform['head'][0])
+            self.head_handle.position = head_pq[:3]
+            self.head_handle.wxyz = head_pq[3:]
+            self.head_label.position = head_pq[:3] + np.array([0, 0, 0.02])
+
+            right_wrist_pq = pt.pq_from_transform(transform['right_wrist'])
+            left_wrist_pq = pt.pq_from_transform(transform['left_wrist'])
+            self.wrist_handle.batched_positions = np.stack([right_wrist_pq[:3], left_wrist_pq[:3]], axis=0)
+            self.wrist_handle.batched_wxyzs = np.stack([right_wrist_pq[3:], left_wrist_pq[3:]], axis=0)
+            self.left_wrist_label.position = left_wrist_pq[:3] + np.array([0, 0, 0.02])
+            self.right_wrist_label.position = right_wrist_pq[:3] + np.array([0, 0, 0.02])
+
+            transform['right_fingers'] = transform['right_wrist'] @ transform['right_fingers']
+            transform['left_fingers'] = transform['left_wrist'] @ transform['left_fingers']
+            right_finger_pq, left_finger_pq = [], []
+            empty  = np.zeros(7)
+            empty[4] = 1.0
+            for i in range(25):
+                try:
+                    right_finger_pq.append(pt.pq_from_transform(transform['right_fingers'][i]))
+                except:
+                    right_finger_pq.append(empty)
+                try:
+                    left_finger_pq.append(pt.pq_from_transform(transform['left_fingers'][i]))
+                except:
+                    left_finger_pq.append(empty)
+
+            left_finger_pq = np.array(left_finger_pq)
+            right_finger_pq = np.array(right_finger_pq)
+            self.finger_handle.batched_positions = np.concatenate([right_finger_pq[:,:3], left_finger_pq[:,:3]], axis=0)
+            self.finger_handle.batched_wxyzs = np.concatenate([right_finger_pq[:,3:], left_finger_pq[:,3:]], axis=0)
+
+            tip_index = np.array([4, 9, 14, 19, 24])
+            palm_bone_index = np.array([1, 5, 10, 15, 20])
+            line_points = np.stack([left_finger_pq[tip_index, :3], left_finger_pq[palm_bone_index, :3]], axis=1)
+            if self.left_finger_lines is None:
+                self.left_finger_lines = self.server.scene.add_line_segments('left_finger_lines', points=line_points, colors=(30,30,30),line_width=2)
+            if self.left_finger_angles is not None:
+                flat_threshold = (0.01, np.deg2rad(20))
+                mask = (self.left_finger_angles  > flat_threshold[0])*(self.left_finger_angles < flat_threshold[1])
+                colors = mask[:,None] * np.array([[0,255,0]]) + (1 - mask)[:,None] * np.array([[255,0,0]])
+                self.left_finger_lines.points = line_points
+                self.left_finger_lines.colors = np.stack([colors, colors], axis=1)
+            else:
+                self.left_finger_lines.points = line_points
+                self.left_finger_lines.colors = np.zeros((5,2,3), dtype=np.uint8) + 10
+
+            if self.left_finger_good_for_init is not None:
+                self.left_wrist_pos_handle.visible = True
+                self.left_wrist_pos_handle.position = left_wrist_pq[:3]
+                if self.left_finger_good_for_init:
+                    self.left_wrist_pos_handle.color = (0,255,0)
+                else:
+                    self.left_wrist_pos_handle.color = (255,0,0)
+            else:
+                self.left_wrist_pos_handle.visible = False
+
+
+            line_points = np.stack([right_finger_pq[tip_index, :3], right_finger_pq[palm_bone_index, :3]], axis=1)
+            if self.right_finger_lines is None:
+                self.right_finger_lines = self.server.scene.add_line_segments('right_finger_lines', line_points, colors=(30,30,30),line_width=2)
+            if self.right_finger_angles is not None:
+                flat_threshold = (0.01, np.deg2rad(20))
+                mask = (self.right_finger_angles > flat_threshold[0])*(self.right_finger_angles < flat_threshold[1])
+                colors = mask[:, None] * np.array([[0, 255, 0]]) + (1 - mask)[:, None] * np.array([[255, 0, 0]])
+                self.right_finger_lines.points = line_points
+                self.right_finger_lines.colors = np.stack([colors, colors], axis=1)
+            else:
+                self.right_finger_lines.points = line_points
+                self.right_finger_lines.colors = np.zeros((5,2,3), dtype=np.uint8) + 10
+            if self.right_finger_good_for_init is not None:
+                self.right_wrist_pos_handle.visible = True
+                self.right_wrist_pos_handle.position = right_wrist_pq[:3]
+                if self.right_finger_good_for_init:
+                    self.right_wrist_pos_handle.color = (0,255,0)
+                else:
+                    self.right_wrist_pos_handle.color = (255,0,0)
+            else:
+                self.right_wrist_pos_handle.visible = False
+
+            if np.linalg.norm(head_pq[:3] - right_wrist_pq[:3]) < 0.1:
+                self.right_wrist_label.text = 'Invalid Right Wrist'
+            else:
+                self.right_wrist_label.text = 'Right Wrist'
+            if np.linalg.norm(head_pq[:3] - left_wrist_pq[:3]) < 0.1:
+                self.left_wrist_label.text = 'Invalid Left Wrist'
+            else:
+                self.left_wrist_label.text = 'Left Wrist'
+
+            time.sleep(0.01)
 
     def __render_mujoco(self):
         self.viz = MuJoCoParserClass('hand', rel_xml_path='models/leaders/hand.xml', VERBOSE=True)
@@ -335,9 +484,6 @@ class VisionPro:
             self.viz.render()
             time.sleep(0.01)
 
-
-
-
     def launch_init(self, initial_qpos):
 
         if self.streamer.record and len(self.streamer.recording) > 0:
@@ -355,6 +501,7 @@ class VisionPro:
         return
 
     def initialize(self):
+        self.init_progress = 0.0
         iteration, initialize_progress = 0.0, 0.0
         dt, threshold_time = 0.03, 3
 
@@ -373,16 +520,23 @@ class VisionPro:
                 init_left_hand_wrist_pose_list.append(pt.pq_from_transform(left_hand_wrist_pose))
                 init_right_hand_wrist_pose_list.append(pt.pq_from_transform(right_hand_wrist_pose))
 
-            left_hand_continue_init, left_finger_angles = self._is_hand_pose_good_for_init(
-                left_hand_wrist_pose[:3,3],
-                left_hand_joints[:,:3,3],
-                init_left_hand_wrist_pose_list[-1][:3],
-            )
-            right_hand_continue_init, right_finger_angles = self._is_hand_pose_good_for_init(
-                right_hand_wrist_pose[:3,3],
-                right_hand_joints[:,:3,3],
-                init_right_hand_wrist_pose_list[-1][:3],
-            )
+            if self.use_left_hand:
+                left_hand_continue_init, left_finger_angles = self._is_hand_pose_good_for_init(
+                    left_hand_wrist_pose[:3,3],
+                    left_hand_joints[:,:3,3],
+                    init_left_hand_wrist_pose_list[-1][:3],
+                )
+            else:
+                left_hand_continue_init, left_finger_angles = True, np.zeros(5)
+            if self.use_right_hand:
+                right_hand_continue_init, right_finger_angles = self._is_hand_pose_good_for_init(
+                    right_hand_wrist_pose[:3,3],
+                    right_hand_joints[:,:3,3],
+                    init_right_hand_wrist_pose_list[-1][:3],
+                )
+            else:
+                right_hand_continue_init, right_finger_angles = True, np.zeros(5)
+
             continue_init = left_hand_continue_init and right_hand_continue_init
             self.left_finger_angles = left_finger_angles
             self.right_finger_angles = right_finger_angles
@@ -400,7 +554,8 @@ class VisionPro:
                 init_right_hand_wrist_pose_list.append(pt.pq_from_transform(right_hand_wrist_pose))
 
 
-            print(f"Initializing VisionPro... {initialize_progress:.2f}/{threshold_time:.2f}")
+            print(f"Initializing VisionPro... {initialize_progress:.2f}/{threshold_time:.2f}", end="\r")
+            self.init_progress = initialize_progress
             self.leader_viz_info['color'] = 'blue'
             self.leader_viz_info['log'] = f"Make your hands flat to initialize.... {initialize_progress:.2f}/{threshold_time}"
             left_time = max(dt -  (time.time() - start_time), 0.0)
@@ -430,10 +585,13 @@ class VisionPro:
         )
 
 
-        self.init_eef_poses = [
-            pt.transform_from(left_calibrated_rot, left_calibrated_pos),
-            pt.transform_from(right_calibrated_rot, right_calibrated_pos)
-        ]
+        self.init_eef_poses = []
+        for limb_id, leader_limb_name in enumerate(self.leader_config.limb_names):
+            if leader_limb_name == 'left':
+                self.init_eef_poses.append(pt.transform_from(left_calibrated_rot, left_calibrated_pos))
+            if leader_limb_name == 'right':
+                self.init_eef_poses.append(pt.transform_from(right_calibrated_rot, right_calibrated_pos))
+
         self.leader_viz_info['color'] = 'green'
         self.leader_viz_info['log'] = 'Visionpro initialized successfully!'
 
@@ -445,8 +603,8 @@ class VisionPro:
         self.last_left_hand_pq = pt.pq_from_transform(transform['left_wrist'])
         self.last_right_hand_pq = pt.pq_from_transform(transform['right_wrist'])
         local_poses, hand_poses = {}, {}
-        for limb_id in range(2):
-            leader_limb_name = 'left' if limb_id == 0 else 'right'
+        for limb_id, leader_limb_name in enumerate(self.leader_config.limb_names):
+            if leader_limb_name not in self.leader_config.limb_mapping: continue
             follower_limb_name = self.leader_config.limb_mapping[leader_limb_name]
             local_poses[follower_limb_name] = np.eye(4)
             hand_poses[follower_limb_name] = 0.0
@@ -458,6 +616,11 @@ class VisionPro:
         self.right_finger_good_for_init = None
         self.is_ready = True
         self.require_end = False
+        self.first_output = False
+        self.left_pos_filter.reset()
+        self.right_pos_filter.reset()
+        self.left_rot_filter.reset()
+        self.right_rot_filter.reset()
         return
 
     def close_init(self):
@@ -548,17 +711,26 @@ class VisionPro:
         right_pinch_distance = np.array([0.1 - self.streamer.latest['right_pinch_distance']]) / 0.1
         right_pinch_distance = np.clip(right_pinch_distance, 0.0, 1.0)
 
-        new_eef_poses = [left_hand_wrist_pose, right_hand_wrist_pose]
+        new_eef_poses, pinch_distances = [], []
+        for limb_id, leader_limb_name in enumerate(self.leader_config.limb_names):
+            if leader_limb_name == 'left':
+                new_eef_poses.append(left_hand_wrist_pose)
+                pinch_distances.append(left_pinch_distance)
+            if leader_limb_name == 'right':
+                new_eef_poses.append(right_hand_wrist_pose)
+                pinch_distances.append(right_pinch_distance)
+
         local_poses, hand_poses = {}, {}
         for limb_id, (Rt, init_Rt) in enumerate(zip(new_eef_poses, self.init_eef_poses)):
+            if limb_id >= len(self.leader_config.limb_names): continue
             new_pos = init_Rt[:3, :3].T @ Rt[:3, 3] - init_Rt[:3, :3].T @ init_Rt[:3, 3]
             new_R = init_Rt[:3, :3].T @ Rt[:3, :3]
             new_pos = new_pos * self.motion_scale
             new_Rt = pt.transform_from(R=new_R, p=new_pos)
-            leader_limb_name = 'left' if limb_id == 0 else 'right'
+            leader_limb_name = self.leader_config.limb_names[limb_id]
             follower_limb_name = self.leader_config.limb_mapping[leader_limb_name]
             local_poses[follower_limb_name] = new_Rt
-            hand_poses[follower_limb_name] = left_pinch_distance if limb_id == 0 else right_pinch_distance
+            hand_poses[follower_limb_name] = pinch_distances[limb_id]
 
 
         self.last_left_hand_wrist_pose = left_hand_wrist_pose
@@ -566,6 +738,9 @@ class VisionPro:
         self.last_left_hand_pq = left_hand_wrist_pq
         self.last_right_hand_pq = right_hand_wrist_pq
         self.last_command = (local_poses, hand_poses)
+        if not self.first_output:
+            print(local_poses)
+            self.first_output = True
         return (local_poses, hand_poses)
 
     def _is_hand_pose_good_for_init(

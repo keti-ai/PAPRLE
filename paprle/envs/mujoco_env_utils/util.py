@@ -439,160 +439,286 @@ def create_folder_if_not_exists(file_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         print ("[%s] created."%(folder_path))
-        
+
+
 class MultiSliderClass(object):
     """
-        GUI with multiple sliders
+    GUI class to create and manage multiple sliders using Tkinter.
     """
-    def __init__(self,
-                 n_slider      = 10,
-                 title         = 'Multiple Sliders',
-                 window_width  = 500,
-                 window_height = None,
-                 x_offset      = 500,
-                 y_offset      = 100,
-                 slider_width  = 400,
-                 label_texts   = None,
-                 slider_mins   = None,
-                 slider_maxs   = None,
-                 slider_vals   = None,
-                 resolution    = 0.1,
-                 VERBOSE       = True
-        ):
+
+    def __init__(
+            self,
+            n_slider=10,
+            title='Multiple Sliders',
+            window_width=500,
+            window_height=None,
+            x_offset=0,
+            y_offset=100,
+            slider_width=400,
+            label_width=None,  # dummy parameter
+            label_texts=None,
+            slider_mins=None,
+            slider_maxs=None,
+            slider_vals=None,
+            resolution=None,
+            resolutions=None,
+            fontsize=10,
+            verbose=True
+    ):
         """
-            Initialze multiple sliders
+        Initialize the MultiSliderClass with the specified slider parameters.
+
+        Parameters:
+            n_slider (int): Number of sliders.
+            title (str): Window title.
+            window_width (int): Width of the window.
+            window_height (int): Height of the window. If None, it is computed based on n_slider.
+            x_offset (int): X offset for window placement.
+            y_offset (int): Y offset for window placement.
+            slider_width (int): Width of each slider.
+            label_width (int): Width of the label (dummy parameter).
+            label_texts (list): List of texts for slider labels.
+            slider_mins (list): List of minimum values for sliders.
+            slider_maxs (list): List of maximum values for sliders.
+            slider_vals (list): Initial slider values.
+            resolution (float): Resolution for all sliders.
+            resolutions (list): List of resolutions for each slider.
+            fontsize (int): Font size for labels.
+            verbose (bool): If True, print status messages.
         """
-        self.n_slider      = n_slider
-        self.title         = title
-        
-        self.window_width  = window_width
+        self.n_slider = n_slider
+        self.title = title
+
+        self.window_width = window_width
         if window_height is None:
-            self.window_height = self.n_slider*40
+            self.window_height = self.n_slider * 40
         else:
             self.window_height = window_height
-        self.x_offset      = x_offset
-        self.y_offset      = y_offset
-        self.slider_width  = slider_width
-        
-        self.resolution    = resolution
-        self.VERBOSE       = VERBOSE
-        
+        self.x_offset = x_offset
+        self.y_offset = y_offset
+        self.slider_width = slider_width
+        self.resolution = resolution
+        self.resolutions = resolutions
+        self.fontsize = fontsize
+        self.verbose = verbose
+
         # Slider values
         self.slider_values = np.zeros(self.n_slider)
-        
+
         # Initial/default slider settings
-        self.label_texts   = label_texts
-        self.slider_mins   = slider_mins
-        self.slider_maxs   = slider_maxs
-        self.slider_vals   = slider_vals
-        
+        self.label_texts = label_texts
+        self.slider_mins = slider_mins
+        self.slider_maxs = slider_maxs
+        self.slider_vals = slider_vals
+
         # Create main window
         self.gui = tk.Tk()
-        self.gui.title("%s"%(self.title))
-        self.gui.geometry("%dx%d+%d+%d"%
-                          (self.window_width,self.window_height,self.x_offset,self.y_offset))
+
+        self.gui.title("%s" % (self.title))
+        self.gui.geometry(
+            "%dx%d+%d+%d" %
+            (self.window_width, self.window_height, self.x_offset, self.y_offset))
 
         # Create vertical scrollbar
-        self.scrollbar = tk.Scrollbar(self.gui,orient=tk.VERTICAL)
-        
+        self.scrollbar = tk.Scrollbar(self.gui, orient=tk.VERTICAL)
+
         # Create a Canvas widget with the scrollbar attached
-        self.canvas = tk.Canvas(self.gui,yscrollcommand=self.scrollbar.set)
+        self.canvas = tk.Canvas(self.gui, yscrollcommand=self.scrollbar.set)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Configure the scrollbar to control the canvas
         self.scrollbar.config(command=self.canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         # Create a frame inside the canvas to hold the sliders
         self.sliders_frame = tk.Frame(self.canvas)
-        self.canvas.create_window((0,0),window=self.sliders_frame,anchor=tk.NW)
-        
+        self.canvas.create_window((0, 0), window=self.sliders_frame, anchor=tk.NW)
+
         # Create sliders
         self.sliders = self.create_sliders()
-        
+
         # Update the canvas scroll region when the sliders_frame changes size
-        self.sliders_frame.bind("<Configure>",self.cb_scroll)
+        self.sliders_frame.bind("<Configure>", self.cb_scroll)
 
         # You may want to do this in the main script
-        for _ in range(100): self.update() # to avoid GIL-related error 
-        
-    def cb_scroll(self,event):    
+        for _ in range(100): self.update()  # to avoid GIL-related error
+
+    def cb_scroll(self, event):
+        """
+        Callback function to update the scroll region when the slider frame size changes.
+
+        Parameters:
+            event: Tkinter event object.
+
+        Returns:
+            None
+        """
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        
-    def cb_slider(self,slider_idx,slider_value):
+
+    def cb_slider(self, slider_idx, slider_value):
         """
-            Slider callback function
+        Callback function for slider value changes.
+
+        Parameters:
+            slider_idx (int): Index of the slider.
+            slider_value (float): New value of the slider.
+
+        Returns:
+            None
         """
-        self.slider_values[slider_idx] = slider_value # append
-        if self.VERBOSE:
-            print ("slider_idx:[%d] slider_value:[%.1f]"%(slider_idx,slider_value))
-        
+        self.slider_values[slider_idx] = slider_value  # append
+        if self.verbose:
+            print("slider_idx:[%d] slider_value:[%.1f]" % (slider_idx, slider_value))
+
     def create_sliders(self):
         """
-            Create sliders
+        Create slider widgets for the GUI.
+
+        Returns:
+            list: List of slider widget objects.
         """
         sliders = []
         for s_idx in range(self.n_slider):
             # Create label
             if self.label_texts is None:
-                label_text = "Slider %02d "%(s_idx)
+                label_text = "Slider %02d " % (s_idx)
             else:
-                label_text = "[%d/%d]%s"%(s_idx,self.n_slider,self.label_texts[s_idx])
-            slider_label = tk.Label(self.sliders_frame, text=label_text)
-            slider_label.grid(row=s_idx,column=0,padx=0,pady=0)
-            
+                label_text = "[%d/%d] %s" % (s_idx, self.n_slider, self.label_texts[s_idx])
+            slider_label = tk.Label(self.sliders_frame, text=label_text, font=("Helvetica", self.fontsize))
+            slider_label.grid(row=s_idx, column=0, padx=0, pady=0)
+
             # Create slider
-            if self.slider_mins is None: slider_min = 0
-            else: slider_min = self.slider_mins[s_idx]
-            if self.slider_maxs is None: slider_max = 100
-            else: slider_max = self.slider_maxs[s_idx]
-            if self.slider_vals is None: slider_val = 50
-            else: slider_val = self.slider_vals[s_idx]
+            if self.slider_mins is None:
+                slider_min = 0
+            else:
+                slider_min = self.slider_mins[s_idx]
+            if self.slider_maxs is None:
+                slider_max = 100
+            else:
+                slider_max = self.slider_maxs[s_idx]
+            if self.slider_vals is None:
+                slider_val = 50
+            else:
+                slider_val = self.slider_vals[s_idx]
+
+            # Resolution
+            if self.resolution is None:  # if none, divide the range with 100
+                resolution = (slider_max - slider_min) / 100
+            else:
+                resolution = self.resolution
+            if self.resolutions is not None:
+                resolution = self.resolutions[s_idx]
+
             slider = tk.Scale(
                 self.sliders_frame,
-                from_      = slider_min,
-                to         = slider_max,
-                orient     = tk.HORIZONTAL,
-                command    = lambda value,idx=s_idx:self.cb_slider(idx,float(value)),
-                resolution = self.resolution,
-                length     = self.slider_width
+                from_=slider_min,
+                to=slider_max,
+                orient=tk.HORIZONTAL,
+                command=lambda value, idx=s_idx: self.cb_slider(idx, float(value)),
+                resolution=resolution,
+                length=self.slider_width,
+                font=("Helvetica", self.fontsize),
             )
-            slider.grid(row=s_idx,column=1,padx=0,pady=0,sticky=tk.W)
+            slider.grid(row=s_idx, column=1, padx=0, pady=0, sticky=tk.W)
             slider.set(slider_val)
             sliders.append(slider)
-            
+
         return sliders
-    
+
     def update(self):
+        """
+        Update the GUI window if it exists.
+
+        Returns:
+            None
+        """
         if self.is_window_exists():
             self.gui.update()
-        
+
     def run(self):
+        """
+        Start the Tkinter main loop for the slider GUI.
+
+        Returns:
+            None
+        """
         self.gui.mainloop()
-        
+
     def is_window_exists(self):
+        """
+        Check if the GUI window still exists.
+
+        Returns:
+            bool: True if the window exists, False otherwise.
+        """
         try:
             return self.gui.winfo_exists()
         except tk.TclError:
             return False
-        
+
     def get_slider_values(self):
+        """
+        Get the current values of all sliders.
+
+        Returns:
+            np.array: Array of slider values.
+        """
         return self.slider_values
-    
-    def set_slider_values(self,slider_values):
+
+    def get_values(self):
+        """
+        Alias for get_slider_values.
+
+        Returns:
+            np.array: Array of slider values.
+        """
+        return self.slider_values
+
+    def set_slider_values(self, slider_values):
+        """
+        Set the values of all sliders.
+
+        Parameters:
+            slider_values (list or np.array): New slider values.
+
+        Returns:
+            None
+        """
         self.slider_values = slider_values
-        for slider,slider_value in zip(self.sliders,self.slider_values):
+        for slider, slider_value in zip(self.sliders, self.slider_values):
             slider.set(slider_value)
-    
+
+    def set_slider_value(self, slider_idx, slider_value):
+        """
+        Set the value of a specific slider.
+
+        Parameters:
+            slider_idx (int): Index of the slider.
+            slider_value (float): New value for the slider.
+
+        Returns:
+            None
+        """
+        self.slider_values[slider_idx] = slider_value
+        slider = self.sliders[slider_idx]
+        slider.set(slider_value)
+
     def close(self):
+        """
+        Close the slider GUI.
+
+        Returns:
+            None
+        """
         if self.is_window_exists():
             # some loop
-            for _ in range(100): self.update() # to avoid GIL-related error 
-            # Close 
+            for _ in range(100): self.update()  # to avoid GIL-related error
+            # Close
             self.gui.destroy()
             self.gui.quit()
             self.gui.update()
-        
+
+
 def get_colors(cmap_name='gist_rainbow',n_color=10,alpha=1.0):
     colors = [plt.get_cmap(cmap_name)(idx) for idx in np.linspace(0,1,n_color)]
     for idx in range(n_color):

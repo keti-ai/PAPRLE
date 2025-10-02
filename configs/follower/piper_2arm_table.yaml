@@ -48,7 +48,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/piper/piper/piper.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot1/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot1/link1 # base_link in the original urdf file, not the base_link in the ik model
 
   robot2:
     joint_names: ['robot1/joint1', 'robot1/joint2', 'robot1/joint3', 'robot1/joint4', 'robot1/joint5', 'robot1/joint6']
@@ -58,7 +58,7 @@ ik_cfg: # information for inverse kinematics. Use single arm model for each arm.
     urdf_path: 'models/piper/piper/piper.urdf'
     ik_damping: 0.075
     eps: 1e-3
-    base_link: robot2/link1 # base_link in the original urdf file,not the base_link in the ik model
+    attached_to: robot2/link1 # base_link in the original urdf file,not the base_link in the ik model
 
 ros1_cfg:
   lp_filter_alpha: 0.9

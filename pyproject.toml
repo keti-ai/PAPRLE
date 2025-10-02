@@ -17,6 +17,7 @@ dependencies = [
   "yourdfpy",
   "pyglet<2",
   "tk",
+  "pyside6",
   # Needed for keyboard control
   "termcolor",
   "getch",

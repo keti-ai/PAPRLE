@@ -4,10 +4,9 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="UF_ROBOT">
-<mujoco>
+  <mujoco>
    <compiler angle="radian" meshdir="../" autolimits="true" strippath="false" fusestatic="false"/>
 </mujoco>
-  <!-- Insert at the beginning of xarm_device_macro.xacro -->
   <material name="Black">
     <color rgba="0.0 0.0 0.0 1.0"/>
   </material>

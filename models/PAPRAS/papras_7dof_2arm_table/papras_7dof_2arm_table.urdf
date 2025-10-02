@@ -64,7 +64,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="assets/leaders/table.stl"/>
+        <mesh filename="assets/scene/table_simple.stl"/>
       </geometry>
       <material name="">
         <color rgba="0.501960784313725 0.501960784313725 0.501960784313725 1"/>
@@ -73,7 +73,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="assets/leaders/table.stl"/>
+        <mesh filename="assets/scene/table_simple.stl"/>
       </geometry>
     </collision>
   </link>
@@ -490,7 +490,7 @@
   <joint name="robot3/wrist_joint" type="fixed">
     <parent link="robot3/end_link"/>
     <child link="robot3/wrist_link"/>
-    <origin rpy="0 0 0" xyz="0.006 0.0 0.0"/>
+    <origin rpy="1.57 0 0" xyz="0.006 0.0 0.0"/>
   </joint>
   <!-- gripper main fixed joint-->
   <joint name="robot3/end_link_fixed" type="fixed">
@@ -1221,7 +1221,7 @@
   <joint name="robot4/wrist_joint" type="fixed">
     <parent link="robot4/end_link"/>
     <child link="robot4/wrist_link"/>
-    <origin rpy="0 0 0" xyz="0.006 0.0 0.0"/>
+    <origin rpy="1.57 0 0" xyz="0.006 0.0 0.0"/>
   </joint>
   <!-- gripper main fixed joint-->
   <joint name="robot4/end_link_fixed" type="fixed">
