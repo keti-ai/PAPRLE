@@ -1,19 +1,16 @@
-import os
-import sys
-
-#from paprle.ik.pinocchio import PinocchioIKSolver
-from paprle.ik import IK_SOLVER_DICT
-from paprle.hands import BaseHand, ParallelGripper, PowerGripper
-from paprle.collision import MujocoCollisionChecker
-from paprle.visualizer.mujoco_vis import MujocoViz
+import time
+from threading import Thread, Lock
 import numpy as np
 from pytransform3d import transformations as pt
-from threading import Thread, Lock
-import time
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
+
+from paprle.ik import IK_SOLVER_DICT
+from paprle.hands import BaseHand, ParallelGripper, PowerGripper
+from paprle.collision import MujocoCollisionChecker
+from paprle.visualizer.mujoco_vis import MujocoViz
 
 
 class Teleoperator:
@@ -106,7 +103,7 @@ class Teleoperator:
                     self.viz.render()
                     self.last_image = self.viz.env.grab_image()
             time.sleep(0.03)
-
+            
     def step(self, command, initial=False):
         target_qpos = self.last_target_qpos.copy()
         target_ee_poses = []
@@ -298,8 +295,8 @@ if __name__ == '__main__':
             delta_ee_pose, _ = get_delta_from_transform()
             if delta_ee_pose is not None:
                 hand_command = {
-                    'left': np.array([0.5]),   # gripper 값 (필요시 수정)
-                    'right': np.array([1.0])   # gripper 값 (필요시 수정)
+                    'left': np.array([0.0]),   # gripper 값 (필요시 수정)
+                    'right': np.array([0.0])   # gripper 값 (필요시 수정)
                 }
                 
                 command = (delta_ee_pose, hand_command)
