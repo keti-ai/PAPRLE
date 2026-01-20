@@ -17,7 +17,8 @@ class BaseConfig:
     def parse(self, parser=None):
         if parser is None:
             parser = argparse.ArgumentParser(add_help=False, formatter_class=RawTextHelpFormatter)
-        parser.add_argument('--follower','-f', type=str, default='ffw_bg2_follower_without_gripper')
+        # parser.add_argument('--follower','-f', type=str, default='ffw_bg2_follower_without_gripper')
+        parser.add_argument('--follower','-f', type=str, default='ffw_sg2_follower')
         parser.add_argument('--leader', '-l', type=str, default='vive_tracker')
         parser.add_argument('--env', '-e', type=str, default='ros2')
 

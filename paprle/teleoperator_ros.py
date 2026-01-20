@@ -11,6 +11,11 @@ from pytransform3d import transformations as pt
 from threading import Thread, Lock
 import time
 
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float64MultiArray
+
+
 class Teleoperator:
     def __init__(self, robot, leader_config, env_config, render_mode=False):
         self.shutdown, self.viz = False, None
@@ -194,32 +199,117 @@ if __name__ == '__main__':
     robot = Robot(robot_config)
 
     teleoperator = Teleoperator(robot, device_config, env_config, render_mode=True)
-        # delta 변환 행렬 생성
-    rotation_matrix = np.eye(3)  # 또는 실제 회전 행렬
-    position = np.array([0.01, 0.02, 0.03])  # delta 위치
-    delta_transform = pt.transform_from(R=rotation_matrix, p=position)
-
-    # command 구성
-    delta_ee_pose = {
-        'left': delta_transform,   # 4x4 행렬
-        'right': delta_transform   # 4x4 행렬
-    }
-
-    hand_command = {
-        'left': np.array([0.5]),   # gripper 값
-        'right': np.array([1.0])   # gripper 값
-    }
-
-    command = (delta_ee_pose, hand_command)
-
-    # 또는 dict 형태로 전달
-    command_dict = {
-        'command_type': 'delta_eef_pose',
-        'command': (delta_ee_pose, hand_command)
+    
+    
+    # ROS2 transform_matrix subscriber를 사용하여 transform_matrix 토픽에서 데이터 받기
+    rclpy.init()
+    transform_node = Node('transform_matrix_subscriber_node')
+    
+    # 좌표계 변환 행렬: tracker 좌표계 → 로봇 좌표계 (4x4 행렬)
+    # tracker x+ → robot y-
+    # tracker y+ → robot x-
+    # tracker z+ → robot z-
+    
+    coord_transform_T = np.array([
+    [0, -1,  0,  0],
+    [-1, 0,  0,  0],
+    [0,  0, -1,  0],
+    [0,  0,  0,  1]
+    ])
+    
+    # Transform matrix 데이터를 저장할 딕셔너리
+    transform_data = {'left': None, 'right': None}
+    transform_lock = Lock()
+    
+    # 토픽 이름 (파라미터로 받을 수도 있음)
+    transform_topic_base = '/leader/vive_tracker'
+    
+    def transform_left_callback(msg):
+        """Left transform_matrix 토픽 콜백 함수"""
+        with transform_lock:
+            # Float64MultiArray의 16개 요소를 4x4 행렬로 reshape
+            T_tracker = np.array(msg.data).reshape(4, 4)
+            # 좌표계 변환 적용: tracker → robot
+            T_robot = T_tracker @ coord_transform_T
+            transform_data['left'] = T_robot
+    
+    def transform_right_callback(msg):
+        """Right transform_matrix 토픽 콜백 함수"""
+        with transform_lock:
+            # Float64MultiArray의 16개 요소를 4x4 행렬로 reshape
+            T_tracker = np.array(msg.data).reshape(4, 4)
+            # 좌표계 변환 적용: tracker → robot
+            T_robot = T_tracker @ coord_transform_T
+            transform_data['right'] = T_robot
+    
+    # transform_matrix 토픽 구독
+    transform_left_subscription = transform_node.create_subscription(
+        Float64MultiArray,
+        f'{transform_topic_base}/left/transform_matrix',
+        transform_left_callback,
+        10
+    )
+    
+    transform_right_subscription = transform_node.create_subscription(
+        Float64MultiArray,
+        f'{transform_topic_base}/right/transform_matrix',
+        transform_right_callback,
+        10
+    )
+    
+    # 초기 pose를 기준으로 delta 계산을 위한 초기값 저장
+    state = {
+        'init_poses': {'left': None, 'right': None},
+        'first_update': True
     }
     
-    teleoperator.step(command_dict)
-    time.sleep(1)
-    teleoperator.step(command_dict)
-    # teleoperator.close()
-
+    def get_delta_from_transform():
+        """Transform matrix 데이터를 delta 변환 행렬로 변환"""
+        with transform_lock:
+            if transform_data['left'] is None or transform_data['right'] is None:
+                return None, None
+            
+            if state['first_update']:
+                # 첫 업데이트 시 초기 pose 저장
+                state['init_poses']['left'] = transform_data['left'].copy()
+                state['init_poses']['right'] = transform_data['right'].copy()
+                state['first_update'] = False
+                # 초기 delta는 identity
+                return {
+                    'left': np.eye(4),
+                    'right': np.eye(4)
+                }, None
+            
+            # delta 계산: init_pose^(-1) @ current_pose
+            delta_ee_pose = {}
+            for limb in ['left', 'right']:
+                if state['init_poses'][limb] is not None and transform_data[limb] is not None:
+                    init_inv = np.linalg.inv(state['init_poses'][limb])
+                    delta = init_inv @ transform_data[limb]
+                    delta_ee_pose[limb] = delta
+            
+            return delta_ee_pose, None
+    
+    # 메인 루프
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(transform_node, timeout_sec=0.1)
+            
+            delta_ee_pose, _ = get_delta_from_transform()
+            if delta_ee_pose is not None:
+                hand_command = {
+                    'left': np.array([0.5]),   # gripper 값 (필요시 수정)
+                    'right': np.array([1.0])   # gripper 값 (필요시 수정)
+                }
+                
+                command = (delta_ee_pose, hand_command)
+                joint_poses = teleoperator.step(command)
+                # print(f"Joint poses: {joint_poses}")
+            
+            time.sleep(0.01)  # 100Hz
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        transform_node.destroy_node()
+        rclpy.shutdown()
+        

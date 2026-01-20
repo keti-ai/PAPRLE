@@ -38,24 +38,25 @@ def import_pinocchio():
     # if ros-humble-pinocchio is installed, use it without removing noetic/humble
     # and if not installed, remove all ros-related paths
 
-    if py.major == 3 and py.minor == 10:
-        removed_p = []
-        for p in sys.path:
-            if 'humble' in p:
-                sys.path.remove(p)
-                removed_p.append(p)
-    elif py.major == 3 and py.minor == 8:
-        removed_p = []
-        for p in sys.path:
-            if 'noetic' in p:
-                sys.path.remove(p)
+    
+    # if py.major == 3 and py.minor == 10:
+    #     removed_p = []
+    #     for p in sys.path:
+    #         if 'humble' in p:
+    #             sys.path.remove(p)
+    #             removed_p.append(p)
+    # elif py.major == 3 and py.minor == 8:
+    #     removed_p = []
+    #     for p in sys.path:
+    #         if 'noetic' in p:
+    #             sys.path.remove(p)
 
     try:
         import pinocchio as pin
     except ImportError:
         raise
 
-    sys.path.extend(removed_p)
+    # sys.path.extend(removed_p)
     return pin
 
 import_pinocchio()

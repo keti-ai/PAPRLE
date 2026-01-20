@@ -32,6 +32,7 @@ robot_cfg:
     right:
     - gripper_r_joint1
   max_joint_vel: 2.0
+  teleop_dt: 0.02
   end_effector_link:
     left: wrist_l # eef_l
     right: wrist_r # eef_r

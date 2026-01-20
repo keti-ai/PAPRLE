@@ -4,6 +4,9 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="ffw_bg2_follower_without_gripper">
+  <mujoco>
+    <compiler angle="radian" meshdir="../" autolimits="true" strippath="false" fusestatic="false"/>
+  </mujoco>
   <link name="world"/>
   <joint name="world_fixed" type="fixed">
     <parent link="world"/>
@@ -14,7 +17,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/ffw_bg2_rev4_follower/base_mobile_assy.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/ffw_bg2_rev4_follower/base_mobile_assy.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="silver">
         <color rgba="0.75 0.75 0.75 1"/>
@@ -23,7 +26,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/ffw_bg2_rev4_follower/base_mobile_assy.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/ffw_bg2_rev4_follower/base_mobile_assy.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -50,7 +53,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/body_arm_assy.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/body_arm_assy.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="white">
         <color rgba="1 1 1 1"/>
@@ -59,7 +62,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/body_arm_assy.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/body_arm_assy.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -80,7 +83,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/head_link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/head_link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -89,7 +92,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/head_link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/head_link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -110,7 +113,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/head_link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/head_link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="white">
         <color rgba="1 1 1 1"/>
@@ -119,7 +122,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/head_link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/head_link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -140,7 +143,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -149,7 +152,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -170,7 +173,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -179,7 +182,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -200,7 +203,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -209,7 +212,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -230,7 +233,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link4.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link4.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -239,7 +242,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link4.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link4.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -260,7 +263,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link5.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link5.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -269,7 +272,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link5.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link5.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -290,7 +293,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link6.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link6.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -299,7 +302,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link6.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link6.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -320,7 +323,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link7.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link7.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -329,7 +332,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_l_link7.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_l_link7.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -355,7 +358,7 @@
       <!-- the mesh origin is at front plate in between the two infrared camera axes -->
       <origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0.0038 -0.009 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/d405.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/d405.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
@@ -384,7 +387,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -393,7 +396,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -414,7 +417,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -423,7 +426,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -444,7 +447,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -453,7 +456,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -474,7 +477,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link4.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link4.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -483,7 +486,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link4.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link4.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -504,7 +507,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link5.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link5.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -513,7 +516,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link5.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link5.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -534,7 +537,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link6.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link6.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -543,7 +546,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link6.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link6.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -564,7 +567,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link7.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link7.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="black">
         <color rgba="0.2 0.2 0.2 1"/>
@@ -573,7 +576,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/arm_r_link7.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/arm_r_link7.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
     <inertial>
@@ -599,7 +602,7 @@
       <!-- the mesh origin is at front plate in between the two infrared camera axes -->
       <origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0.0038 -0.009 0"/>
       <geometry>
-        <mesh filename="../assets/ai_worker/common/follower/d405.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="assets/ai_worker/common/follower/d405.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="aluminum"/>
     </visual>
