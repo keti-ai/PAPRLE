@@ -43,11 +43,14 @@ For more information about PAPRAS, please visit [this site](https://uiuckimlab.g
 This repository is based on [PAPRLE](https://uiuckimlab.github.io/papras-pages). <br>
 If you find this code useful in your research, please consider citing:
 ```
-@article{kwon2025paprle,
-      title={{PAPRLE (Plug-And-Play Robotic Limb Environment): A Modular Ecosystem for Robotic Limbs}}, 
-      author={Obin Kwon and Sankalp Yamsani and Noboru Myers and Sean Taylor and Jooyoung Hong and Kyungseo Park and Alex Alspach and Joohyung Kim},
-      year={2025},
-      journal={arXiv preprint arXiv:2507.05555},
-      url={https://arxiv.org/abs/2507.05555}, 
-}
+@ARTICLE{kwon2026paprle,
+  author={Kwon, Obin and Yamsani, Sankalp and Myers, Noboru and Taylor, Sean and Hong, Jooyoung and Park, Kyungseo and Alspach, Alex and Kim, Joohyung},
+  journal={IEEE Robotics & Automation Magazine}, 
+  title={PAPRLE: Plug-And-Play Robotic Limb Environment: A Modular Ecosystem for Robotic Limbs}, 
+  year={2026},
+  volume={},
+  number={},
+  pages={2-12},
+  keywords={Robots;Limbs;Kinematics;Input devices;Humanoid robots;Automation;Artificial intelligence;Force feedback;End effectors;Wrist},
+  doi={10.1109/MRA.2025.3647246}}
 ```
