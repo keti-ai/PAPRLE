@@ -17,9 +17,9 @@ class BaseConfig:
     def parse(self, parser=None):
         if parser is None:
             parser = argparse.ArgumentParser(add_help=False, formatter_class=RawTextHelpFormatter)
-        parser.add_argument('--follower','-f', type=str, default='papras_7dof')
-        parser.add_argument('--leader', '-l', type=str, default='sliders')
-        parser.add_argument('--env', '-e', type=str, default='mujoco')
+        parser.add_argument('--follower','-f', type=str, default='ffw_bg2_follower_without_gripper')
+        parser.add_argument('--leader', '-l', type=str, default='vive_tracker')
+        parser.add_argument('--env', '-e', type=str, default='ros2')
 
         parser.add_argument('--render-leader', action='store_true', default=False,)
         parser.add_argument('--render-teleop', action='store_true', default=False)
@@ -86,4 +86,5 @@ class BaseConfig:
 
 
 if __name__ == '__main__':
-    BaseConfig().parse()
+    cfg = BaseConfig().parse()
+    print(cfg)

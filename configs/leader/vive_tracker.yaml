@@ -1,0 +1,12 @@
+type: vive_tracker
+name: vive_tracker
+
+teleop_dt: 0.02
+output_type: joint_pos # 'joint_pos' or 'delta_eef_pose'
+
+limb_names: ['left','right'] # order of hands in the output
+motion_scale: 1.0
+
+replay: ''#'sample_data/vive_tracker/sample_for_humanoid.pkl' # path to the replay file
+record: False
+save_dir: 'sample_data/vive_tracker/'
