@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 import time
 from threading import Thread, Lock
 import numpy as np
@@ -242,14 +245,14 @@ if __name__ == '__main__':
     # transform_matrix 토픽 구독
     transform_left_subscription = transform_node.create_subscription(
         Float64MultiArray,
-        f'{transform_topic_base}/left/transform_matrix',
+        f'{transform_topic_base}/eef_l_pose',
         transform_left_callback,
         10
     )
     
     transform_right_subscription = transform_node.create_subscription(
         Float64MultiArray,
-        f'{transform_topic_base}/right/transform_matrix',
+        f'{transform_topic_base}/eef_r_pose',
         transform_right_callback,
         10
     )

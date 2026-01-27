@@ -108,7 +108,7 @@ ik_cfg:
     - arm_r_joint5
     - arm_r_joint6
     - arm_r_joint7
-    - lift_joint
+    # - lift_joint
     ee_link: wrist_r
     attached_to: world
     dt: 0.05
@@ -147,7 +147,8 @@ ros2_cfg:
   state_sub_msg_type: sensor_msgs/msg/JointState
   robots:
     left:
-      arm_control_topic: 'arm_l_controller/joint_trajectory'
+      # arm_control_topic: 'arm_l_controller/joint_trajectory'
+      arm_control_topic: '/leader/joint_trajectory_command_broadcaster_left/joint_trajectory'
       arm_control_msg_type: 'JointTrajectory'
       hand_control_topic: 'arm_l_controller/joint_trajectory'
       hand_control_msg_type: 'JointTrajectory'
@@ -156,7 +157,8 @@ ros2_cfg:
       arm_state_sub_msg_type: ${...state_sub_msg_type}
       hand_state_sub_msg_type: ${...state_sub_msg_type}
     right:
-      arm_control_topic: '/arm_r_controller/joint_trajectory'
+      # arm_control_topic: '/arm_r_controller/joint_trajectory'
+      arm_control_topic: '/leader/joint_trajectory_command_broadcaster_right/joint_trajectory'
       arm_control_msg_type: 'JointTrajectory'
       hand_control_topic: '/arm_r_controller/joint_trajectory'
       hand_control_msg_type: 'JointTrajectory'

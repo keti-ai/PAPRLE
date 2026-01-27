@@ -32,6 +32,7 @@ robot_cfg:
     right:
     - gripper_r_joint1
   max_joint_vel: 2.0
+  teleop_dt: 0.02
   end_effector_link:
     left: wrist_l # eef_l
     right: wrist_r # eef_r
@@ -146,7 +147,7 @@ ros2_cfg:
   state_sub_msg_type: sensor_msgs/msg/JointState
   robots:
     left:
-      arm_control_topic: 'arm_l_controller/joint_trajectory'
+      arm_control_topic: '/leader/joint_trajectory_command_broadcaster_left/joint_trajectory'
       arm_control_msg_type: 'JointTrajectory'
       hand_control_topic: 'arm_l_controller/joint_trajectory'
       hand_control_msg_type: 'JointTrajectory'
@@ -155,7 +156,7 @@ ros2_cfg:
       arm_state_sub_msg_type: ${...state_sub_msg_type}
       hand_state_sub_msg_type: ${...state_sub_msg_type}
     right:
-      arm_control_topic: '/arm_r_controller/joint_trajectory'
+      arm_control_topic: '/leader/joint_trajectory_command_broadcaster_right/joint_trajectory'
       arm_control_msg_type: 'JointTrajectory'
       hand_control_topic: '/arm_r_controller/joint_trajectory'
       hand_control_msg_type: 'JointTrajectory'
