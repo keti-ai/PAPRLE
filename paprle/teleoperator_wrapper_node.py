@@ -32,6 +32,8 @@ class TeleoperatorWrapperNode(Node):
         self.declare_parameter('sim_only', False)
         self.declare_parameter('mirror_mode', False)
         self.declare_parameter('max_position_jump', 0.25)  # 5cm
+        self.declare_parameter('apply_arm_ratio', False)
+        self.declare_parameter('human_arm_length', 550)
         
         self.eef_l_tracker_topic = self.get_parameter('eef_l_tracker_topic').get_parameter_value().string_value
         self.eef_r_tracker_topic = self.get_parameter('eef_r_tracker_topic').get_parameter_value().string_value
@@ -40,6 +42,8 @@ class TeleoperatorWrapperNode(Node):
         self.sim_only = self.get_parameter('sim_only').get_parameter_value().bool_value
         self.mirror_mode = self.get_parameter('mirror_mode').get_parameter_value().bool_value
         self.max_position_jump = self.get_parameter('max_position_jump').get_parameter_value().double_value
+        self.apply_arm_len_ratio = self.get_parameter('apply_arm_ratio').get_parameter_value().bool_value
+        self.human_arm_length = self.get_parameter('human_arm_length').get_parameter_value().integer_value
         
         # 좌표계 변환 행렬: tracker 좌표계 → 로봇 좌표계 (4x4 행렬)
         # tracker x+ → robot y-
@@ -60,7 +64,9 @@ class TeleoperatorWrapperNode(Node):
             'last_poses': {'left': None, 'right': None},
             'first_update': True
         }
-        
+        self.robot_arm_length = 710
+        self.arm_ratio = self.robot_arm_length / self.human_arm_length
+
         self.teleop_initialized = False
         self.tracker_send = False
         self.last_tracker_pose = None
@@ -143,11 +149,9 @@ class TeleoperatorWrapperNode(Node):
             # 좌표계 변환 적용: tracker → robot
             T_robot = T_tracker @ self.coord_transform_T
 
-            # 팔 길이만큼 배율 x, z축 배율
-            human_arm_length = 550
-            robot_arm_length = 720
-            arm_ratio = robot_arm_length / human_arm_length
-            T_robot[:3, 3] = T_robot[:3, 3] * arm_ratio
+            # 팔 길이만큼 배율 x, y, z축 배율
+            if self.apply_arm_len_ratio:
+                T_robot[:3, 3] = T_robot[:3, 3] * self.arm_ratio
 
             # 이전 위치와 비교하여 튀는 값 필터링
             if self.state['last_poses']['left'] is not None:
@@ -172,12 +176,10 @@ class TeleoperatorWrapperNode(Node):
             # 좌표계 변환 적용: tracker → robot
             T_robot = T_tracker @ self.coord_transform_T
 
-            # 팔 길이만큼 배율 x, z축 배율
-            human_arm_length = 550
-            robot_arm_length = 720
-            arm_ratio = robot_arm_length / human_arm_length
-            T_robot[:3, 3] = T_robot[:3, 3] * arm_ratio
-            
+            # 팔 길이만큼 배율 x, y, z축 배율
+            if self.apply_arm_len_ratio:
+                T_robot[:3, 3] = T_robot[:3, 3] * self.arm_ratio
+
             # 이전 위치와 비교하여 튀는 값 필터링
             if self.state['last_poses']['right'] is not None:
                 last_pos = self.state['last_poses']['right'][:3, 3]
