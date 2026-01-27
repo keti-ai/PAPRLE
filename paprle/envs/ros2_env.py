@@ -45,7 +45,7 @@ class ROS2Env(BaseEnv):
             print("rclpy already initialized")
         self.shutdown = False
         self.robot = robot
-        self.motion_planning_method = robot.ros2_config.motion_planning
+        self.motion_planning_method = ''#robot.ros2_config.motion_planning
         if self.motion_planning_method == 'moveit':
             self.moveit_node = Node('teleop_env_moveit')
             self.moveit_config = robot.ros2_config.moveit
@@ -69,17 +69,17 @@ class ROS2Env(BaseEnv):
                 topics_to_pub[arm_control_pub_topic] = {'type': limb_info['arm_control_msg_type'], 'joint_names': []}
             topics_to_pub[arm_control_pub_topic]['joint_names'].extend(joint_names)
 
-            hand_state_sub_topic = limb_info['hand_state_sub_topic']
-            hand_joint_names = robot.robot_config.hand_joint_names[limb_name]
-            if hand_state_sub_topic not in topics_to_sub:
-                topics_to_sub[hand_state_sub_topic] = {'type': limb_info['hand_state_msg_type'], 'joint_names': []}
-            topics_to_sub[hand_state_sub_topic]['joint_names'].extend(hand_joint_names)
+            # hand_state_sub_topic = limb_info['hand_state_sub_topic']
+            # hand_joint_names = robot.robot_config.hand_joint_names[limb_name]
+            # if hand_state_sub_topic not in topics_to_sub:
+            #     topics_to_sub[hand_state_sub_topic] = {'type': limb_info['hand_state_msg_type'], 'joint_names': []}
+            # topics_to_sub[hand_state_sub_topic]['joint_names'].extend(hand_joint_names)
 
-            hand_control_pub_topic = limb_info['hand_control_topic']
-            if hand_control_pub_topic: #  some robots may not have hand control
-                if hand_control_pub_topic not in topics_to_pub:
-                    topics_to_pub[hand_control_pub_topic] = {'type': limb_info['hand_control_msg_type'], 'joint_names': []}
-                topics_to_pub[hand_control_pub_topic]['joint_names'].extend(hand_joint_names)
+            # hand_control_pub_topic = limb_info['hand_control_topic']
+            # if hand_control_pub_topic: #  some robots may not have hand control
+            #     if hand_control_pub_topic not in topics_to_pub:
+            #         topics_to_pub[hand_control_pub_topic] = {'type': limb_info['hand_control_msg_type'], 'joint_names': []}
+            #     topics_to_pub[hand_control_pub_topic]['joint_names'].extend(hand_joint_names)
 
         def spin_executor(node, spin_name='', mode='single'):
             from rclpy.executors import SingleThreadedExecutor, MultiThreadedExecutor
@@ -260,12 +260,16 @@ class ROS2Env(BaseEnv):
 
     def close(self):
         self.shutdown = True
-        self.rest_position()
+        if self.motion_planning_method == 'moveit':
+            self.rest_position()
+        
         with self.command_lock:
             self.controller_publisher.command_pos = None
         self.controller_publisher.destroy_node()
         self.state_subscriber.destroy_node()
-        self.moveit_node.destroy_node()
+
+        if self.motion_planning_method == 'moveit':
+            self.moveit_node.destroy_node()
 
         for thread in self.threads:
             thread.join()

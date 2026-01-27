@@ -158,9 +158,9 @@ class Teleoperator:
         return qpos
 
     def reset(self, initial_qpos=None):
-        if initial_qpos is None:
-            self.init_qpos = initial_qpos
-            self.robot.init_qpos = self.init_qpos
+        # if initial_qpos is None:
+        #     self.init_qpos = initial_qpos
+        #     self.robot.init_qpos = self.init_qpos
 
         if self.command_type == 'delta_eef_pose':
             for eef_idx, limb_name in enumerate(self.robot.limb_names):
@@ -168,7 +168,7 @@ class Teleoperator:
                 self.ik_solver.reset()
                 self.ik_solver.set_qpos(self.init_qpos)
                 self.init_world2ees = self.ik_solver.compute_ee_poses(self.init_qpos)
-        self.last_target_qpos = self.vis_info['qpos'] = self.init_qpos
+        self.last_target_qpos = self.vis_info['qpos'] = self.robot.init_qpos
         return
 
     def close(self):

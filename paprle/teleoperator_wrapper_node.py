@@ -30,15 +30,15 @@ class TeleoperatorWrapperNode(Node):
         self.declare_parameter('hz', 100)
         self.declare_parameter('vis_render', True)
         self.declare_parameter('sim_only', False)
-        self.declare_parameter('face_to_face', False)
-        self.declare_parameter('max_position_jump', 0.05)  # 5cm
+        self.declare_parameter('mirror_mode', False)
+        self.declare_parameter('max_position_jump', 0.25)  # 5cm
         
         self.eef_l_tracker_topic = self.get_parameter('eef_l_tracker_topic').get_parameter_value().string_value
         self.eef_r_tracker_topic = self.get_parameter('eef_r_tracker_topic').get_parameter_value().string_value
         self.hz = self.get_parameter('hz').get_parameter_value().integer_value
         self.vis_render = self.get_parameter('vis_render').get_parameter_value().bool_value
         self.sim_only = self.get_parameter('sim_only').get_parameter_value().bool_value
-        self.face_to_face = self.get_parameter('face_to_face').get_parameter_value().bool_value
+        self.mirror_mode = self.get_parameter('mirror_mode').get_parameter_value().bool_value
         self.max_position_jump = self.get_parameter('max_position_jump').get_parameter_value().double_value
         
         # 좌표계 변환 행렬: tracker 좌표계 → 로봇 좌표계 (4x4 행렬)
@@ -142,7 +142,13 @@ class TeleoperatorWrapperNode(Node):
             T_tracker = np.array(msg.data).reshape(4, 4)
             # 좌표계 변환 적용: tracker → robot
             T_robot = T_tracker @ self.coord_transform_T
-            
+
+            # 팔 길이만큼 배율 x, z축 배율
+            human_arm_length = 550
+            robot_arm_length = 720
+            arm_ratio = robot_arm_length / human_arm_length
+            T_robot[:3, 3] = T_robot[:3, 3] * arm_ratio
+
             # 이전 위치와 비교하여 튀는 값 필터링
             if self.state['last_poses']['left'] is not None:
                 last_pos = self.state['last_poses']['left'][:3, 3]
@@ -165,6 +171,12 @@ class TeleoperatorWrapperNode(Node):
             T_tracker = np.array(msg.data).reshape(4, 4)
             # 좌표계 변환 적용: tracker → robot
             T_robot = T_tracker @ self.coord_transform_T
+
+            # 팔 길이만큼 배율 x, z축 배율
+            human_arm_length = 550
+            robot_arm_length = 720
+            arm_ratio = robot_arm_length / human_arm_length
+            T_robot[:3, 3] = T_robot[:3, 3] * arm_ratio
             
             # 이전 위치와 비교하여 튀는 값 필터링
             if self.state['last_poses']['right'] is not None:
@@ -183,8 +195,8 @@ class TeleoperatorWrapperNode(Node):
             self.transform_data['right'] = T_robot
             self.state['last_poses']['right'] = T_robot.copy()
     
-    def apply_face_to_face_transform(self, T):
-        """face_to_face 모드에서 x축과 z축 회전 및 y, z축 변위를 반전시키는 변환 적용
+    def apply_mirror_mode_transform(self, T):
+        """mirror_mode 모드에서 x축과 z축 회전 및 y, z축 변위를 반전시키는 변환 적용
         회전: y축 중심 180도 회전 변환 (x축, z축 반전)
         변위: x축 유지, y축과 z축 반전
         """
@@ -203,7 +215,7 @@ class TeleoperatorWrapperNode(Node):
         # t_flipped[0] = -t_flipped[0]  # x축 반전
         t_flipped[1] = -t_flipped[1]  # y축 반전
         # t_flipped[2] = -t_flipped[2]  # z축 반전
-        
+
         # 변환된 행렬 조립
         T_flipped = np.eye(4)
         T_flipped[:3, :3] = R_flipped
@@ -239,17 +251,17 @@ class TeleoperatorWrapperNode(Node):
                     delta = init_inv @ self.transform_data[limb]
                     delta_ee_pose[limb] = delta
             
-            # face_to_face 모드일 때 좌우 매핑 반전 및 x축, z축 회전/변위 반전
+            # mirror_mode 모드일 때 좌우 매핑 반전 및 x축, z축 회전/변위 반전
             # 사용자의 오른손(eef_r) → 로봇의 왼손, 사용자의 왼손(eef_l) → 로봇의 오른손
-            if self.face_to_face:
+            if self.mirror_mode:
                 # 좌우 매핑 반전
                 delta_ee_pose = {
                     'left': delta_ee_pose['right'],   # 사용자 오른손 → 로봇 왼손
                     'right': delta_ee_pose['left']     # 사용자 왼손 → 로봇 오른손
                 }
                 # x축, z축 회전 및 변위 반전 적용
-                delta_ee_pose['left'] = self.apply_face_to_face_transform(delta_ee_pose['left'])
-                delta_ee_pose['right'] = self.apply_face_to_face_transform(delta_ee_pose['right'])
+                delta_ee_pose['left'] = self.apply_mirror_mode_transform(delta_ee_pose['left'])
+                delta_ee_pose['right'] = self.apply_mirror_mode_transform(delta_ee_pose['right'])
             
             return delta_ee_pose, None
         
